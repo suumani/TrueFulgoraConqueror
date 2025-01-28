@@ -6,6 +6,7 @@
 
 script.on_nth_tick(600, function()
 	-- フルゴララッシュの蓄積キュー実行
+	-- game_print.debug("[debug] on_nth_tick 600")
 	
 	-- フルゴラが存在しなければ終了
 	local fulgora_surface = game.surfaces["fulgora"]
@@ -13,14 +14,98 @@ script.on_nth_tick(600, function()
 		return
 	end
 
+	-- 遺跡イベントの実行
+	execute_ruins_queue(fulgora_surface)
+
+	-- 生成済みチャンクイベントの実行
+	execute_chunk_queue(fulgora_surface)
+
+end)
+
+-- ----------------------------
+-- 生成済みチャンクイベントの実行
+-- ----------------------------
+function execute_chunk_queue(fulgora_surface)
+
+	-- game_print.debug("execute_chunk_queue")
 	-- キューが存在しなければ終了
-	if storage.ruins_queue == nil or #storage.ruins_queue == 0 then
+	if storage.fulgora_chunk_queue == nil then
+		-- game_print.debug("queue == nil")
+		return
+	end
+	
+	if #storage.fulgora_chunk_queue == 0 then
+		-- game_print.debug("#storage.fulgora_chunk_queue == 0")
 		return
 	end
 
-	-- サーフェイスが存在しなければ終了
-	local fulgora_surface = game.surfaces["fulgora"]
-	if fulgora_surface == nil then
+	-- 進化度の取得
+	local evolution_factor = game.forces["enemy"].get_evolution_factor(fulgora_surface)
+	
+	-- 今回の実行数
+	local target_count = math.floor((storage.fulgora_chunk_queue_size or 0) / 180) + 1
+
+	local fulgora_chunk_queue_size = #storage.fulgora_chunk_queue
+
+	-- game_print.debug("(fulgora_chunk_queue_size, fulgora_chunk_queue_size - target_count) = " .. fulgora_chunk_queue_size .. ", " .. fulgora_chunk_queue_size - target_count)
+	local spawner_add = 0
+	for i = fulgora_chunk_queue_size, fulgora_chunk_queue_size - target_count, -1 do
+		-- 対象がなくなったら終了
+		if i < 1 then
+			return
+		end
+
+		-- 対象が既になければ除去して終了
+		if storage.fulgora_chunk_queue[i].valid == false then
+			-- game_print.debug("[debug] storage.fulgora_chunk_queue[i].valid = " .. storage.fulgora_chunk_queue[i].valid)
+			table.remove(storage.fulgora_chunk_queue, i)
+			return
+		else
+			-- 対象チャンクにバイターの巣があれば、バイターの巣の増殖トライ(失敗して条件満たしていたらデモリッシャー)
+			local spawners = fulgora_surface.find_entities_filtered{
+				force = "enemy", 
+				name = {"biter-spawner", "spitter-spawner"}, 
+				area = {
+					{x = storage.fulgora_chunk_queue[i].x * 32, y = storage.fulgora_chunk_queue[i].y * 32},
+					{x = (storage.fulgora_chunk_queue[i].x + 1) * 32, y = (storage.fulgora_chunk_queue[i].y + 1) * 32}
+				}
+			}
+			if #spawners == 0 then
+				-- nothing
+			else
+				local result = "success"
+				local position = spawners[math.random(1, #spawners)].position
+				if math.random() < 0.5 then
+					result = place_spawner_around(fulgora_surface, evolution_factor, position)
+				else
+					result = place_worm_around(fulgora_surface, evolution_factor, position)
+				end
+				-- game_print.debug("try result = " .. result)
+		
+				if result == "failed" then
+					-- デモリッシャー配置トライ(スポナー10個でデモリッシャー発生)
+					try_place_demolisher(fulgora_surface, evolution_factor, position, storage.fulgora_demolisher_count)
+				else
+					spawner_add = spawner_add + 1
+				end
+			end
+
+			-- 操作終了したら除去
+			table.remove(storage.fulgora_chunk_queue, i)
+		end
+	end
+	if spawner_add ~= 0 then
+		-- game_print.debug("[debug] spawner increase : " .. spawner_add)
+	end
+end
+
+-- ----------------------------
+-- 遺跡イベントの実行
+-- ----------------------------
+function execute_ruins_queue(fulgora_surface)
+	-- キューが存在しなければ終了
+	if storage.ruins_queue == nil or #storage.ruins_queue == 0 then
+		-- game_print.debug("[debug] #storage.ruins_queue, storage.ruins_queue_size = " .. #storage.ruins_queue .. ", " .. storage.ruins_queue_size)
 		return
 	end
 
@@ -32,42 +117,42 @@ script.on_nth_tick(600, function()
 
 	local ruins_queue_size = #storage.ruins_queue
 
+	-- game_print.debug("([debug] ruins_queue_size, ruins_queue_size - target_count) = ( " .. ruins_queue_size .. ", " .. ruins_queue_size - target_count .. ")" )
 	for i = ruins_queue_size, ruins_queue_size - target_count, -1 do
 		-- 対象がなくなったら終了
 		if i < 1 then
+			-- game_print.debug("[debug] on_nth_tick 600 finish")
 			return
 		end
 
 		-- 対象が既になければ除去して終了
 		if storage.ruins_queue[i].valid == false then
 			table.remove(storage.ruins_queue, i)
-			return
+		else
+
+			if storage.ruins_queue[i].name == "fulgoran-ruin-vault" then
+				-- フルゴラのフルゴラの貯蔵庫の遺構からは30分おきに100%の確率でバイターの巣とワームが3個発生する、発生できない場合はデモリッシャー判定がある
+				try_fulgoran_ruin_vault(fulgora_surface, evolution_factor, storage.ruins_queue[i].position, storage.fulgora_demolisher_count)
+			elseif storage.ruins_queue[i].name == "fulgoran-ruin-colossal" then
+				-- フルゴラの超巨大な遺跡からは30分おき100%の確率でバイターの巣とワームが1個発生する
+				try_fulgoran_ruin_colossal(fulgora_surface, evolution_factor, storage.ruins_queue[i].position, storage.fulgora_demolisher_count)
+			elseif storage.ruins_queue[i].name == "fulgoran-ruin-huge" then
+				-- フルゴラの巨大な遺跡からは30分おき10%の確率でバイターの巣とワームが発生する
+				try_fulgoran_ruin_huge(fulgora_surface, evolution_factor, storage.ruins_queue[i].position, storage.fulgora_demolisher_count)
+			end
+	
+			-- 操作終了したら除去
+			table.remove(storage.ruins_queue, i)
 		end
 		
-		if storage.ruins_queue[i].name == "fulgoran-ruin-vault" then
-			-- フルゴラのフルゴラの貯蔵庫の遺構からは30分おきに100%の確率でバイターの巣とワームが3個発生する、発生できない場合はデモリッシャー判定がある
-			try_fulgoran_ruin_vault(fulgora_surface, evolution_factor, storage.ruins_queue[i].position, storage.fulgora_demolisher_count)
-		elseif storage.ruins_queue[i].name == "fulgoran-ruin-colossal" then
-			-- フルゴラの超巨大な遺跡からは30分おき100%の確率でバイターの巣とワームが1個発生する
-			try_fulgoran_ruin_colossal(fulgora_surface, evolution_factor, storage.ruins_queue[i].position, storage.fulgora_demolisher_count)
-		elseif storage.ruins_queue[i].name == "fulgoran-ruin-huge" then
-			-- フルゴラの巨大な遺跡からは30分おき10%の確率でバイターの巣とワームが発生する
-			try_fulgoran_ruin_huge(fulgora_surface, evolution_factor, storage.ruins_queue[i].position, storage.fulgora_demolisher_count)
-		end
-
-		-- 操作終了したら除去
-		table.remove(storage.ruins_queue, i)
-
 	end
-
-	game.print("debug ... fulgora")
-
-end)
+end
 
 -- ----------------------------
 -- フルゴラのフルゴラの貯蔵庫の遺構からは30分おきに100%の確率でバイターの巣とワームが3個発生する、発生できない場合はデモリッシャー判定がある
 -- ----------------------------
 function try_fulgoran_ruin_vault(fulgora_surface, evolution_factor, position, demolisher_count)
+	-- game_print.debug("[debug] try_fulgoran_ruin_vault")
 	-- 設置が成功すると仮定
 	local result = "success"
 
@@ -101,6 +186,7 @@ end
 -- フルゴラの超巨大な遺跡からは30分おき100%の確率でバイターの巣とワームが1個発生する
 -- ----------------------------
 function try_fulgoran_ruin_colossal(fulgora_surface, evolution_factor, position, demolisher_count)
+	-- game_print.debug("[debug] try_fulgoran_ruin_colossal")
 	local result = "success"
 	if math.random() < 0.5 then
 		result = place_spawner_around(fulgora_surface, evolution_factor, position)
@@ -118,6 +204,7 @@ end
 -- フルゴラの巨大な遺跡からは30分おき10%の確率でバイターの巣とワームが発生する
 -- ----------------------------
 function try_fulgoran_ruin_huge(fulgora_surface, evolution_factor, position, demolisher_count)
+	-- game_print.debug("[debug] try_fulgoran_ruin_huge")
 
 	-- 90%の確率で終了
 	if math.random() < 0.9 then
@@ -142,17 +229,17 @@ end
 -- ----------------------------
 function try_place_demolisher(fulgora_surface, evolution_factor, center_position, demolisher_count)
 	-- デモリッシャーがマップに多すぎで終了
-	if demolisher_count > 100 then
+	if demolisher_count > 400 then
 		return
 	end
 
-	-- デモリッシャーが近くに居たら終了
+	-- デモリッシャーが近くに4匹以上居たら終了
 	local nearby_demolishers = fulgora_surface.find_entities_filtered{
 		force = "enemy", 
 		name = {"small-demolisher","medium-demolisher","big-demolisher"},
 		area = {{center_position.x - 100, center_position.y - 100}, {center_position.x + 100, center_position.y + 100}}
 	}
-	if #nearby_demolishers ~= 0 then
+	if #nearby_demolishers > 3 then
 		return
 	end
 

@@ -2,25 +2,153 @@
 -- 30分イベント
 -- ----------------------------
 script.on_nth_tick(108000, function()
+
 	-- フルゴララッシュの実行
 	local fulgora_surface = game.surfaces["fulgora"]
 	if fulgora_surface == nil then
 		return
 	end
 
-	-- 現在の遺跡情報の上書き
+	-- 遠すぎるチャンクが生成されている場合に削除
+	delete_genarated_chunks_too_far(fulgora_surface)
+
+	-- 現在の遺跡情報の上書き(デモリッシャーに壊される運命)
 	storage.ruins_queue = fulgora_surface.find_entities_filtered{name = {"fulgoran-ruin-vault","fulgoran-ruin-colossal","fulgoran-ruin-huge"}}
 	storage.ruins_queue_size = #storage.ruins_queue
-	-- 現在のデモリッシャーの数の上書き
-	storage.fulgora_demolisher_count = #(fulgora_surface.find_entities_filtered{force = "enemy", name = {"small-demolisher","medium-demolisher","big-demolisher"}})
 
-	-- game.print("storage.fulgora_demolisher_count = " .. storage.fulgora_demolisher_count)
+	-- 現在のデモリッシャーの数の上書き
+	local demolishers = fulgora_surface.find_entities_filtered{force = "enemy", name = {"small-demolisher","medium-demolisher","big-demolisher"}}
+	storage.fulgora_demolisher_count = #demolishers
+
+	-- 最新のチャンク情報
+	local chunks = fulgora_surface.get_chunks()
+	storage.fulgora_chunk_queue = {}
+	for chunk in chunks do
+		table.insert(storage.fulgora_chunk_queue, chunk)
+	end
+	storage.fulgora_chunk_queue_size = #storage.fulgora_chunk_queue
+
+	
+	local spawners = fulgora_surface.find_entities_filtered{
+		force = "enemy", 
+		name = {"biter-spawner", "spitter-spawner"}, 
+	}
+
+	--[[game_print.debug(
+		"[debug] (ruins, spawners, demolishers, chunk) = ("
+		.. storage.ruins_queue_size .. ", " 
+		.. #spawners .. ", " 
+		.. storage.fulgora_demolisher_count .. ", " 
+		.. storage.fulgora_chunk_queue_size ..")") ]]
+
+	-- 移動対象なしか、ロケット打ち上げなし
+	if storage.latest_fulgora_rocket_histories == nil then storage.latest_fulgora_rocket_histories = {} end
+	if #demolishers ~= 0 and #storage.latest_fulgora_rocket_histories ~= 0 then
+		
+		-- デモリッシャー移動イベント
+		Demolishers_Move_to_Silo(demolishers)
+		game_print.message("The Demolisher begins to move ... The vibrations from the rocket silo are unsettling.")
+	
+	end
+
+
+	-- ロケット発射座標履歴の初期化
+	storage.latest_fulgora_rocket_histories = {}
 
 end)
+
+-- ----------------------------
+-- デモリッシャー移動イベント(ロケット打ち上げ履歴依存)
+-- ----------------------------
+function Demolishers_Move_to_Silo(demolishers)
+	
+	-- 移動対象なしか、ロケット打ち上げなし
+	if #demolishers == 0 or #storage.latest_fulgora_rocket_histories == 0 then
+		return
+	end
+
+	-- 全てのデモリッシャーに対して実行
+	for _, demolisher in pairs(demolishers) do
+		Demolisher_Move_to_Silo(demolisher, storage.latest_fulgora_rocket_histories, 100)
+	end
+
+end
+
+-- ----------------------------
+-- Entityのサイロに向けたワープ
+-- ----------------------------
+function Demolisher_Move_to_Silo(entity, positions, max_distance)
+
+	local min_distance
+	-- 移動方向の座標
+	local target_position
+	-- 実際の移動先
+	local move_position
+
+	-- 最も近いサイロ座標を決定
+	for _, position in pairs(positions) do
+		if min_distance == nil then
+			min_distance = squared_distance(entity.position, position)
+			target_position = position
+		else
+			local current_distance = squared_distance(entity.position, position)
+			if current_distance < min_distance then
+				min_distance = current_distance
+				target_position = position
+			end
+		end
+	end
+
+	move_position = calculate_next_position(entity.position, target_position, max_distance)
+
+	-- game_print.debug("demolisher warp : (" .. entity.position.x .. ", " .. entity.position.y .. ") -> (" .. move_position.x .. ", " .. move_position.y .. ")")
+
+	-- 移動先にコピー（.teleportはデモリッシャーに無効）
+	local new_entity = entity.surface.create_entity{
+        name = entity.name,
+        position = move_position,
+        force = entity.force,
+        direction = entity.direction,
+		quality = entity.quality
+    }
+
+	-- 移動元を削除
+	entity.destroy()
+
+	-- game_print.debug("new demolisher.pos = (" .. new_entity.position.x .. ", " .. new_entity.position.y .. ")")
+
+end
+
+function calculate_next_position(pos1, pos2, max_distance)
+    local dx = pos2.x - pos1.x
+    local dy = pos2.y - pos1.y
+    local distance = math.sqrt(dx * dx + dy * dy)
+
+    -- 目標地点がmax_distance以内なら、その座標を返す
+    if distance <= max_distance then
+        return {x = pos2.x, y = pos2.y}
+    end
+
+    -- 最大移動量
+    local ratio = max_distance / distance
+    local new_x = pos1.x + dx * ratio
+    local new_y = pos1.y + dy * ratio
+
+    return {x = new_x, y = new_y}
+end
+
+-- ----------------------------
+-- 距離の二乗の取得
+-- ----------------------------
+function squared_distance(pos1, pos2)
+	return (pos1.x - pos2.x)^2 + (pos1.y - pos2.y)^2
+end
+
+
 -- ----------------------------
 -- 生成済みのチャンクの削除
 -- ----------------------------
-function delete_genarated_chunks_too_far()
+function delete_genarated_chunks_too_far(fulgora_surface)
 
 	local force = game.forces["player"]
 	-- generated chunk coordinate
