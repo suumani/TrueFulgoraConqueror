@@ -9,6 +9,9 @@ script.on_nth_tick(108000, function()
 		return
 	end
 
+	-- 進化度の取得
+	local evolution_factor = game.forces["enemy"].get_evolution_factor(fulgora_surface)
+
 	-- 遠すぎるチャンクが生成されている場合に削除
 	delete_genarated_chunks_too_far(fulgora_surface)
 
@@ -34,20 +37,24 @@ script.on_nth_tick(108000, function()
 		name = {"biter-spawner", "spitter-spawner"}, 
 	}
 
-	--[[game_print.debug(
+	game_print.debug(
 		"[debug] (ruins, spawners, demolishers, chunk) = ("
 		.. storage.ruins_queue_size .. ", " 
 		.. #spawners .. ", " 
 		.. storage.fulgora_demolisher_count .. ", " 
-		.. storage.fulgora_chunk_queue_size ..")") ]]
+		.. storage.fulgora_chunk_queue_size ..")")
 
 	-- 移動対象なしか、ロケット打ち上げなし
 	if storage.latest_fulgora_rocket_histories == nil then storage.latest_fulgora_rocket_histories = {} end
 	if #demolishers ~= 0 and #storage.latest_fulgora_rocket_histories ~= 0 then
 		
 		-- デモリッシャー移動イベント
-		Demolishers_Move_to_Silo(demolishers)
-		game_print.message("The Demolisher begins to move ... The vibrations from the rocket silo are unsettling.")
+		local count = Demolishers_Move_to_Silo(demolishers, evolution_factor)
+		if count == 1 then
+			game_print.message("1 Demolisher begins to move ... The vibrations from the rocket silo are...")
+		elseif count > 1 then
+			game_print.message(count .. "Demolisher begin to move ... The vibrations from the rocket silo are...")
+		end
 	
 	end
 
@@ -60,18 +67,36 @@ end)
 -- ----------------------------
 -- デモリッシャー移動イベント(ロケット打ち上げ履歴依存)
 -- ----------------------------
-function Demolishers_Move_to_Silo(demolishers)
+function Demolishers_Move_to_Silo(demolishers, evolution_factor)
 	
 	-- 移動対象なしか、ロケット打ち上げなし
 	if #demolishers == 0 or #storage.latest_fulgora_rocket_histories == 0 then
-		return
+		return 0
 	end
 
 	-- 全てのデモリッシャーに対して実行
+	local count = 0
 	for _, demolisher in pairs(demolishers) do
-		Demolisher_Move_to_Silo(demolisher, storage.latest_fulgora_rocket_histories, 100)
-	end
+		-- 進化度から、移動許可
+		if (demolisher.name == "small-demolisher" and evolution_factor > 0.4) or
+			(demolisher.name == "medium-demolisher" and evolution_factor > 0.7) or 
+			(demolisher.name == "big-demolisher" and evolution_factor > 0.9) then
 
+			-- 進化度の50％の確率で移動
+			if math.random() < (evolution_factor / 2) then
+				local max_distance = 100
+				if demolisher.name == "medium-demolisher" then
+					max_distance = 80
+				elseif demolisher.name == "big-demolisher" then
+					max_distance = 60
+				end
+				max_distance = math.random(20, max_distance)
+				Demolisher_Move_to_Silo(demolisher, storage.latest_fulgora_rocket_histories, max_distance)
+				count = count + 1
+			end
+		end
+	end
+	return count
 end
 
 -- ----------------------------

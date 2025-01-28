@@ -5,6 +5,7 @@
 -- storage.ruins_queue
 
 script.on_nth_tick(600, function()
+
 	-- フルゴララッシュの蓄積キュー実行
 	-- game_print.debug("[debug] on_nth_tick 600")
 	
@@ -59,34 +60,36 @@ function execute_chunk_queue(fulgora_surface)
 		if storage.fulgora_chunk_queue[i].valid == false then
 			-- game_print.debug("[debug] storage.fulgora_chunk_queue[i].valid = " .. storage.fulgora_chunk_queue[i].valid)
 			table.remove(storage.fulgora_chunk_queue, i)
-			return
 		else
-			-- 対象チャンクにバイターの巣があれば、バイターの巣の増殖トライ(失敗して条件満たしていたらデモリッシャー)
-			local spawners = fulgora_surface.find_entities_filtered{
-				force = "enemy", 
-				name = {"biter-spawner", "spitter-spawner"}, 
-				area = {
-					{x = storage.fulgora_chunk_queue[i].x * 32, y = storage.fulgora_chunk_queue[i].y * 32},
-					{x = (storage.fulgora_chunk_queue[i].x + 1) * 32, y = (storage.fulgora_chunk_queue[i].y + 1) * 32}
+			-- 進化度を考慮
+			if math.random() < evolution_factor then
+				-- 対象チャンクにバイターの巣があれば、バイターの巣の増殖トライ(失敗して条件満たしていたらデモリッシャー)
+				local spawners = fulgora_surface.find_entities_filtered{
+					force = "enemy", 
+					name = {"biter-spawner", "spitter-spawner"}, 
+					area = {
+						{x = storage.fulgora_chunk_queue[i].x * 32, y = storage.fulgora_chunk_queue[i].y * 32},
+						{x = (storage.fulgora_chunk_queue[i].x + 1) * 32, y = (storage.fulgora_chunk_queue[i].y + 1) * 32}
+					}
 				}
-			}
-			if #spawners == 0 then
-				-- nothing
-			else
-				local result = "success"
-				local position = spawners[math.random(1, #spawners)].position
-				if math.random() < 0.5 then
-					result = place_spawner_around(fulgora_surface, evolution_factor, position)
+				if #spawners == 0 then
+					-- nothing
 				else
-					result = place_worm_around(fulgora_surface, evolution_factor, position)
-				end
-				-- game_print.debug("try result = " .. result)
-		
-				if result == "failed" then
-					-- デモリッシャー配置トライ(スポナー10個でデモリッシャー発生)
-					try_place_demolisher(fulgora_surface, evolution_factor, position, storage.fulgora_demolisher_count)
-				else
-					spawner_add = spawner_add + 1
+					local result = "success"
+					local position = spawners[math.random(1, #spawners)].position
+					if math.random() < 0.5 then
+						result = place_spawner_around(fulgora_surface, evolution_factor, position)
+					else
+						result = place_worm_around(fulgora_surface, evolution_factor, position)
+					end
+					-- game_print.debug("try result = " .. result)
+			
+					if result == "failed" then
+						-- デモリッシャー配置トライ(スポナー10個でデモリッシャー発生)
+						try_place_demolisher(fulgora_surface, evolution_factor, position, storage.fulgora_demolisher_count)
+					else
+						spawner_add = spawner_add + 1
+					end
 				end
 			end
 
@@ -229,7 +232,7 @@ end
 -- ----------------------------
 function try_place_demolisher(fulgora_surface, evolution_factor, center_position, demolisher_count)
 	-- デモリッシャーがマップに多すぎで終了
-	if demolisher_count > 400 then
+	if demolisher_count > 200 then
 		return
 	end
 
@@ -277,22 +280,72 @@ function demolisher_name(evolution_factor)
 	if evolution_factor < 0.3 then
 		return "small-demolisher"
 	-- 進化0.5未満
-	elseif evolution_factor < 0.5 then
-		if r < 0.5 then
+	elseif evolution_factor < 0.4 then
+		if r < 0.95 then
 			return "small-demolisher"
 		else
 			return "medium-demolisher"
 		end
-	-- 進化0.9未満
-	elseif evolution_factor < 0.9 then
-		if r < 0.5 then
+	elseif evolution_factor < 0.5 then
+		if r < 0.9 then
+			return "small-demolisher"
+		else
+			return "medium-demolisher"
+		end
+	elseif evolution_factor < 0.6 then
+		if r < 0.85 then
+			return "small-demolisher"
+		else
+			return "medium-demolisher"
+		end
+	elseif evolution_factor < 0.7 then
+		if r < 0.80 then
+			return "small-demolisher"
+		elseif r < 0.98 then
 			return "medium-demolisher"
 		else
 			return "big-demolisher"
 		end
-	-- 進化0.9以上
+	elseif evolution_factor < 0.8 then
+		if r < 0.75 then
+			return "small-demolisher"
+		elseif r < 0.96 then
+			return "medium-demolisher"
+		else
+			return "big-demolisher"
+		end
+	elseif evolution_factor < 0.9 then
+		if r < 0.7 then
+			return "small-demolisher"
+		elseif r < 0.94 then
+			return "medium-demolisher"
+		else
+			return "big-demolisher"
+		end
+	elseif evolution_factor < 0.95 then
+		if r < 0.65 then
+			return "small-demolisher"
+		elseif r < 0.92 then
+			return "medium-demolisher"
+		else
+			return "big-demolisher"
+		end
+	elseif evolution_factor < 0.98 then
+		if r < 0.6 then
+			return "small-demolisher"
+		elseif r < 0.9 then
+			return "medium-demolisher"
+		else
+			return "big-demolisher"
+		end
 	else
-		return "big-demolisher"
+		if r < 0.55 then
+			return "small-demolisher"
+		elseif r < 0.8 then
+			return "medium-demolisher"
+		else
+			return "big-demolisher"
+		end
 	end
 end
 
