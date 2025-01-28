@@ -84,11 +84,11 @@ function Demolishers_Move_to_Silo(demolishers, evolution_factor)
 
 			-- 進化度の50％の確率で移動
 			if math.random() < (evolution_factor / 2) then
-				local max_distance = 100
+				local max_distance = math.floor(20 * evolution_factor)
 				if demolisher.name == "medium-demolisher" then
-					max_distance = 80
+					max_distance = math.floor(30 * evolution_factor)
 				elseif demolisher.name == "big-demolisher" then
-					max_distance = 60
+					max_distance = math.floor(40 * evolution_factor)
 				end
 				max_distance = math.random(20, max_distance)
 				Demolisher_Move_to_Silo(demolisher, storage.latest_fulgora_rocket_histories, max_distance)
