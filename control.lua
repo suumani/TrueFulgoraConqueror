@@ -24,5 +24,38 @@
 
 require("defines.constant_entity_name")
 require("scripts.common.choose_quality")
+require("scripts.events.on_nth_tick_10sec")
 require("scripts.events.on_nth_tick_30min")
 require("scripts.events.on_player_used_capsule")
+
+
+
+-- ----------------------------
+-- 開始
+-- ----------------------------
+script.on_init(function()
+	init()
+end)
+
+-- ----------------------------
+-- ロード
+-- ----------------------------
+script.on_load(function()
+end)
+
+-- ----------------------------
+-- 構成変更
+-- ----------------------------
+script.on_configuration_changed(function(event)
+	init()
+end)
+
+-- ----------------------------
+-- 初期化
+-- ----------------------------
+function init()
+	storage = storage or {}
+    storage.ruins_queue = storage.ruins_queue or {}
+    storage.ruins_queue_size = storage.ruins_queue_size or 0
+    storage.fulgora_demolisher_count = storage.fulgora_demolisher_count or 0
+end
