@@ -24,11 +24,11 @@
 
 require("defines.constant_entity_name")
 require("scripts.common.choose_quality")
+require("scripts.common.game_print")
 require("scripts.events.on_nth_tick_10sec")
 require("scripts.events.on_nth_tick_30min")
 require("scripts.events.on_player_used_capsule")
-
-
+require("scripts.events.on_rocket_launched")
 
 -- ----------------------------
 -- 開始
@@ -55,7 +55,13 @@ end)
 -- ----------------------------
 function init()
 	storage = storage or {}
+
     storage.ruins_queue = storage.ruins_queue or {}
     storage.ruins_queue_size = storage.ruins_queue_size or 0
     storage.fulgora_demolisher_count = storage.fulgora_demolisher_count or 0
+
+	storage.fulgora_chunk_queue = storage.fulgora_chunk_queue or {}
+	storage.fulgora_chunk_queue_size = storage.fulgora_chunk_queue_size or 0
+
+    storage.latest_fulgora_rocket_histories = storage.latest_fulgora_rocket_histories or {}
 end
