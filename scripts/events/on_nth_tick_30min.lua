@@ -38,7 +38,8 @@ script.on_nth_tick(108000, function()
 	}
 
 	game_print.debug(
-		"[debug] (ruins, spawners, demolishers, chunk) = ("
+		"[debug] (evolution_factor, ruins, spawners, demolishers, chunk) = ("
+		.. math.floor(100*evolution_factor) / 100 .. ", " 
 		.. storage.ruins_queue_size .. ", " 
 		.. #spawners .. ", " 
 		.. storage.fulgora_demolisher_count .. ", " 
@@ -47,9 +48,14 @@ script.on_nth_tick(108000, function()
 	-- 移動対象なしか、ロケット打ち上げなし
 	if storage.latest_fulgora_rocket_histories == nil then storage.latest_fulgora_rocket_histories = {} end
 	if #demolishers ~= 0 and #storage.latest_fulgora_rocket_histories ~= 0 then
+
+		local move_rate = #storage.latest_fulgora_rocket_histories
+		if move_rate > 3 then
+			move_rate = 3
+		end
 		
 		-- デモリッシャー移動イベント
-		local count = Demolishers_Move_to_Silo(demolishers, evolution_factor)
+		local count = Demolishers_Move_to_Silo(demolishers, evolution_factor, move_rate)
 		if count == 1 then
 			game_print.message("1 Demolisher begins to move ... The vibrations from the rocket silo are...")
 		elseif count > 1 then
@@ -67,7 +73,7 @@ end)
 -- ----------------------------
 -- デモリッシャー移動イベント(ロケット打ち上げ履歴依存)
 -- ----------------------------
-function Demolishers_Move_to_Silo(demolishers, evolution_factor)
+function Demolishers_Move_to_Silo(demolishers, evolution_factor, move_rate)
 	
 	-- 移動対象なしか、ロケット打ち上げなし
 	if #demolishers == 0 or #storage.latest_fulgora_rocket_histories == 0 then
@@ -84,13 +90,13 @@ function Demolishers_Move_to_Silo(demolishers, evolution_factor)
 
 			-- 進化度の50％の確率で移動
 			if math.random() < (evolution_factor / 2) then
-				local max_distance = math.floor(20 * evolution_factor)
+				local max_distance = math.floor(20 * evolution_factor * move_rate) + 1
 				if demolisher.name == "medium-demolisher" then
-					max_distance = math.floor(30 * evolution_factor)
+					max_distance = math.floor(20 * evolution_factor * move_rate) + 1
 				elseif demolisher.name == "big-demolisher" then
-					max_distance = math.floor(40 * evolution_factor)
+					max_distance = math.floor(20 * evolution_factor * move_rate) + 1
 				end
-				max_distance = math.random(20, max_distance)
+				max_distance = math.random(0, max_distance)
 				Demolisher_Move_to_Silo(demolisher, storage.latest_fulgora_rocket_histories, max_distance)
 				count = count + 1
 			end
