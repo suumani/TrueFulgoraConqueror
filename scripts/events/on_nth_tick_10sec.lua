@@ -232,17 +232,18 @@ end
 -- ----------------------------
 function try_place_demolisher(fulgora_surface, evolution_factor, center_position, demolisher_count)
 	-- デモリッシャーがマップに多すぎで終了
+
 	if demolisher_count > 200 then
 		return
 	end
 
-	-- デモリッシャーが近くに4匹以上居たら終了
+	-- デモリッシャーが近くに3匹以上居たら終了
 	local nearby_demolishers = fulgora_surface.find_entities_filtered{
 		force = "enemy", 
 		name = {"small-demolisher","medium-demolisher","big-demolisher"},
 		area = {{center_position.x - 100, center_position.y - 100}, {center_position.x + 100, center_position.y + 100}}
 	}
-	if #nearby_demolishers > 3 then
+	if #nearby_demolishers > 2 then
 		return
 	end
 
@@ -265,6 +266,7 @@ function try_place_demolisher(fulgora_surface, evolution_factor, center_position
 	-- end
 	-- チャンク未生成も強制作成（+32チャンク以上は削除処理)
 
+	game_print.debug("[fulgora] demolishers = " .. demolisher_count)
 	game.print({"item-description.demolisher-spawn"})
 	-- game.print("[Debug] at (x, y) = (" .. center_position.x .. ", " .. center_position.y .. ")")
 
