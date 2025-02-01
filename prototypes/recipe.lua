@@ -1,5 +1,29 @@
 
 data:extend({
+	-- --------------------
+	{
+		type = "recipe",
+		name = "secretary_normal",
+		category = "crafting-with-fluid",
+		enabled = true,
+		energy_required = 12,
+		ingredients =
+		{
+			{type = "item", name = "wood", amount = 1},
+			{type = "item", name = "electronic-circuit", amount = 2},
+			{type = "fluid", name = "water", amount = 10}
+		},
+		results =
+		{
+			{type = "item", name = "secretary_normal", amount = 10}
+		},
+		allow_productivity = true,
+		order = "c[oil-products]-z[secretary_normal]",
+	}
+	,
+	-- ----------------------------
+	-- 液体 各種
+	-- ----------------------------
 	{
 		type = "recipe",
 		name = "nauvis_sap",
@@ -36,6 +60,9 @@ data:extend({
 		},
 	}
 	,
+	-- ----------------------------
+	-- locator 各種
+	-- ----------------------------
 	{
 		type = "recipe",
 		name = "biter_locator_easy",

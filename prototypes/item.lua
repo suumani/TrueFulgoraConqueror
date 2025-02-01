@@ -1,5 +1,43 @@
 
 data:extend({
+
+	{
+		type = "capsule",
+		name = "secretary_normal",
+		localised_name = {"item-name.secretary_normal"},
+		localised_description = {"item-description.secretary_normal"},
+		icon = "__TrueFulgoraConqueror__/graphics/icons/secretary_normal.png",
+		icon_size = 128,
+		subgroup = "capsule",
+		order = "m[machine]-a[_001-secretary_normal]",
+		stack_size = 100,
+		weight = 1000,
+		capsule_action = {
+			type = "throw",
+			attack_parameters = {
+				type = "projectile",
+				ammo_category = "capsule",
+				cooldown = 30, -- クールダウンタイム
+				range = 15, -- 投擲可能距離
+				ammo_type = {
+					category = "capsule",
+					target_type = "position",
+					action = {
+						{
+							type = "direct",
+							action_delivery = {
+								type = "instant"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	,
+	-- ----------------------------
+	-- locator 各種
+	-- ----------------------------
 	{
 		type = "capsule",
 		name = "biter_locator_easy",

@@ -2,11 +2,9 @@
 -- 10秒イベント (180回で次の30分イベント)
 -- ----------------------------
 
--- storage.ruins_queue
-
 script.on_nth_tick(600, function()
 
-	-- フルゴララッシュの蓄積キュー実行
+	-- フルゴララッシュの蓄積キュー実行	
 	-- game_print.debug("[debug] on_nth_tick 600")
 	
 	-- フルゴラが存在しなければ終了
