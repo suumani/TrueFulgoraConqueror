@@ -30,6 +30,8 @@ require("scripts.events.on_nth_tick_30min")
 require("scripts.events.on_player_used_capsule")
 require("scripts.events.on_rocket_launched")
 
+require("scripts.events.on_insert_ammo_to_turrets")
+
 -- ----------------------------
 -- 開始
 -- ----------------------------
