@@ -4,7 +4,9 @@ game_print = {}
 -- debug文の表示
 -- ----------------------------
 local function debug_print(str)
-	game.print(str)
+	if game_debug ~= nil and game_debug == true then
+		game.print(str)
+	end
 end
 
 -- ----------------------------

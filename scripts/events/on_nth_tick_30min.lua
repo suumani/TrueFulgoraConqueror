@@ -3,6 +3,10 @@
 -- ----------------------------
 script.on_nth_tick(108000, function()
 
+	if game_debug ~= nil and game_debug == true then
+		item_used_secretary_normal()
+	end
+
 	-- フルゴララッシュの実行
 	local fulgora_surface = game.surfaces["fulgora"]
 	if fulgora_surface == nil then

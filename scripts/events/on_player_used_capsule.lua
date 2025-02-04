@@ -94,7 +94,7 @@ end
 -- ----------------------------
 -- 秘書サービス
 -- ----------------------------
-local function item_used_secretary_normal()
+function item_used_secretary_normal()
 
 	game_print.message ("Initializing secretary service. Aggregating known information from each planet...")
 	show_all_evolution()

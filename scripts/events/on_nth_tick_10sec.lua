@@ -60,7 +60,7 @@ function execute_chunk_queue(fulgora_surface)
 			table.remove(storage.fulgora_chunk_queue, i)
 		else
 			-- 進化度を考慮
-			if math.random() < evolution_factor then
+			if math.random() < evolution_factor / 2 then
 				-- 対象チャンクにバイターの巣があれば、バイターの巣の増殖トライ(失敗して条件満たしていたらデモリッシャー)
 				local spawners = fulgora_surface.find_entities_filtered{
 					force = "enemy", 
@@ -231,9 +231,14 @@ end
 function try_place_demolisher(fulgora_surface, evolution_factor, center_position, demolisher_count)
 	-- デモリッシャーがマップに多すぎで終了
 
-	if demolisher_count > 200 then
+	-- 検索処理の重さより、生成後処理の重さを重視した
+	local d_count = #(fulgora_surface.find_entities_filtered{force = "enemy", name = {"small-demolisher","medium-demolisher","big-demolisher"}})
+	if d_count > 200 then
 		return
 	end
+	--[[if demolisher_count > 200 then
+		return
+	end]]
 
 	-- デモリッシャーが近くに3匹以上居たら終了
 	local nearby_demolishers = fulgora_surface.find_entities_filtered{
@@ -266,7 +271,7 @@ function try_place_demolisher(fulgora_surface, evolution_factor, center_position
 
 	game_print.debug("[fulgora] demolishers = " .. demolisher_count)
 	game.print({"item-description.demolisher-spawn"})
-	-- game.print("[Debug] at (x, y) = (" .. center_position.x .. ", " .. center_position.y .. ")")
+	game_print.debug("[Debug] at (x, y) = (" .. center_position.x .. ", " .. center_position.y .. ")")
 
 	fulgora_surface.create_entity{name = demolisher_name(evolution_factor), position = center_position, quality = choose_quality(evolution_factor),force = "enemy"}
 end
