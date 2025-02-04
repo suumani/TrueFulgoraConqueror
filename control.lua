@@ -32,6 +32,8 @@ require("scripts.events.on_rocket_launched")
 
 require("scripts.events.on_insert_ammo_to_turrets")
 
+game_debug = true
+
 -- ----------------------------
 -- 開始
 -- ----------------------------
