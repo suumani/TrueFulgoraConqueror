@@ -271,7 +271,7 @@ function try_place_demolisher(fulgora_surface, evolution_factor, center_position
 
 	game_print.debug("[fulgora] demolishers = " .. demolisher_count)
 	game.print({"item-description.demolisher-spawn"})
-	game_print.debug("[Debug] at (x, y) = (" .. center_position.x .. ", " .. center_position.y .. ")")
+	game_print.debug("at (x, y) = (" .. center_position.x .. ", " .. center_position.y .. ")")
 
 	fulgora_surface.create_entity{name = demolisher_name(evolution_factor), position = center_position, quality = choose_quality(evolution_factor),force = "enemy"}
 end

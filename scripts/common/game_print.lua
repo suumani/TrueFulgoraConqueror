@@ -5,7 +5,7 @@ game_print = {}
 -- ----------------------------
 local function debug_print(str)
 	if game_debug ~= nil and game_debug == true then
-		game.print(str)
+		game.print("[debug] " .. str)
 	end
 end
 
