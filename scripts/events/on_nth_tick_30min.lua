@@ -43,7 +43,7 @@ script.on_nth_tick(108000, function()
 
 	--[[
 	game_print.debug(
-		"[debug] (evolution_factor, ruins, spawners, demolishers, chunk) = ("
+		"(evolution_factor, ruins, spawners, demolishers, chunk) = ("
 		.. math.floor(100*evolution_factor) / 100 .. ", " 
 		.. storage.ruins_queue_size .. ", " 
 		.. #spawners .. ", " 
