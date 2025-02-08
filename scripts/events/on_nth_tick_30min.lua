@@ -29,26 +29,27 @@ script.on_nth_tick(108000, function()
 
 	-- 最新のチャンク情報
 	local chunks = fulgora_surface.get_chunks()
+	local chunk_count = 0
 	storage.fulgora_chunk_queue = {}
 	for chunk in chunks do
-		table.insert(storage.fulgora_chunk_queue, chunk)
+		if not game.forces["player"].is_chunk_charted(fulgora_surface, {chunk.x, chunk.y}) then table.insert(storage.fulgora_chunk_queue, chunk) end
+		chunk_count = chunk_count + 1
 	end
 	storage.fulgora_chunk_queue_size = #storage.fulgora_chunk_queue
-
 	
 	local spawners = fulgora_surface.find_entities_filtered{
 		force = "enemy", 
 		name = {"biter-spawner", "spitter-spawner"}, 
 	}
 
-	--[[
 	game_print.debug(
-		"(evolution_factor, ruins, spawners, demolishers, chunk) = ("
+		"(evolution_factor, ruins, spawners, demolishers, no charted chunk, all chunk) = ("
 		.. math.floor(100*evolution_factor) / 100 .. ", " 
 		.. storage.ruins_queue_size .. ", " 
 		.. #spawners .. ", " 
 		.. storage.fulgora_demolisher_count .. ", " 
-		.. storage.fulgora_chunk_queue_size ..")")]]
+		.. storage.fulgora_chunk_queue_size .. ", " 
+		.. chunk_count ..")")
 
 	-- 移動対象なしか、ロケット打ち上げなし
 	if storage.latest_fulgora_rocket_histories == nil then storage.latest_fulgora_rocket_histories = {} end
