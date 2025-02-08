@@ -47,56 +47,36 @@ function execute_chunk_queue(fulgora_surface)
 	local fulgora_chunk_queue_size = #storage.fulgora_chunk_queue
 
 	-- game_print.debug("(fulgora_chunk_queue_size, fulgora_chunk_queue_size - target_count) = " .. fulgora_chunk_queue_size .. ", " .. fulgora_chunk_queue_size - target_count)
-	local spawner_add = 0
-	for i = fulgora_chunk_queue_size, fulgora_chunk_queue_size - target_count, -1 do
-		-- 対象がなくなったら終了
-		if i < 1 then
-			return
-		end
 
-		-- 対象が既になければ除去して終了
-		if storage.fulgora_chunk_queue[i].valid == false then
-			-- game_print.debug("[debug] storage.fulgora_chunk_queue[i].valid = " .. storage.fulgora_chunk_queue[i].valid)
-			table.remove(storage.fulgora_chunk_queue, i)
-		else
-			-- 進化度を考慮
-			if math.random() < evolution_factor / 2 then
-				-- 対象チャンクにバイターの巣があれば、バイターの巣の増殖トライ(失敗して条件満たしていたらデモリッシャー)
-				local spawners = fulgora_surface.find_entities_filtered{
-					force = "enemy", 
-					name = {"biter-spawner", "spitter-spawner"}, 
-					area = {
-						{x = storage.fulgora_chunk_queue[i].x * 32, y = storage.fulgora_chunk_queue[i].y * 32},
-						{x = (storage.fulgora_chunk_queue[i].x + 1) * 32, y = (storage.fulgora_chunk_queue[i].y + 1) * 32}
-					}
+	-- 生成頻度を、全チャンク走査から、10秒ごとにランダム１チャンクに変更、確率50％→10％、1分0.6個=1時間36個
+	-- ただし、バイターの巣が見つからない場合は、最大3回、ランダムチェック
+	local target_chunk = storage.fulgora_chunk_queue[math.random(1, #storage.fulgora_chunk_queue)]
+	local result = false
+	for i = 0, 3, 1 do
+		-- 進化度を考慮
+		if math.random() < evolution_factor / 10 then
+			-- 対象チャンクにバイターの巣があれば、デモリッシャートライ
+			local spawners = fulgora_surface.find_entities_filtered{
+				force = "enemy", 
+				name = {"biter-spawner", "spitter-spawner"}, 
+				area = {
+					{x = target_chunk.x * 32, y = target_chunk.y * 32},
+					{x = (target_chunk.x + 1) * 32, y = (target_chunk.y + 1) * 32}
 				}
-				if #spawners == 0 then
-					-- nothing
-				else
-					local result = "success"
-					local position = spawners[math.random(1, #spawners)].position
-					if math.random() < 0.5 then
-						result = place_spawner_around(fulgora_surface, evolution_factor, position)
-					else
-						result = place_worm_around(fulgora_surface, evolution_factor, position)
-					end
-					-- game_print.debug("try result = " .. result)
-			
-					if result == "failed" then
-						-- デモリッシャー配置トライ(スポナー10個でデモリッシャー発生)
-						try_place_demolisher(fulgora_surface, evolution_factor, position, storage.fulgora_demolisher_count)
-					else
-						spawner_add = spawner_add + 1
-					end
-				end
+			}
+			if #spawners ~= 0 then
+				local position = spawners[math.random(1, #spawners)].position
+				-- デモリッシャー配置トライ
+				result = try_place_demolisher(fulgora_surface, evolution_factor, position, storage.fulgora_demolisher_count)
+				-- １回デモリッシャーの生成をトライすれば、その時点で終了
+				break
 			end
-
-			-- 操作終了したら除去
-			table.remove(storage.fulgora_chunk_queue, i)
 		end
 	end
-	if spawner_add ~= 0 then
-		-- game_print.debug("[debug] spawner increase : " .. spawner_add)
+	if result == nil or result == false then
+		-- game_print.debug("[debug] execute_chunk_queue: no demolisher added")
+	else
+		-- game_print.debug("[debug] execute_chunk_queue: demolisher added")
 	end
 end
 
@@ -234,7 +214,7 @@ function try_place_demolisher(fulgora_surface, evolution_factor, center_position
 	-- 検索処理の重さより、生成後処理の重さを重視した
 	local d_count = #(fulgora_surface.find_entities_filtered{force = "enemy", name = {"small-demolisher","medium-demolisher","big-demolisher"}})
 	if d_count > 200 then
-		return
+		return false
 	end
 	--[[if demolisher_count > 200 then
 		return
@@ -247,7 +227,7 @@ function try_place_demolisher(fulgora_surface, evolution_factor, center_position
 		area = {{center_position.x - 100, center_position.y - 100}, {center_position.x + 100, center_position.y + 100}}
 	}
 	if #nearby_demolishers > 2 then
-		return
+		return false
 	end
 
 	-- デモリッシャー発生条件未達成で終了
@@ -260,7 +240,7 @@ function try_place_demolisher(fulgora_surface, evolution_factor, center_position
 		area = {{center_position.x - 20, center_position.y - 20}, {center_position.x + 20, center_position.y + 20}}
 	}
 	if ((#spawners * 0.8 + #worms * 0.5) * (1 + evolution_factor * 0.5)) < 10 then
-		return
+		return false
 	end
 	
 	-- チャンク未生成は終了
@@ -274,6 +254,7 @@ function try_place_demolisher(fulgora_surface, evolution_factor, center_position
 	game_print.debug("at (x, y) = (" .. center_position.x .. ", " .. center_position.y .. ")")
 
 	fulgora_surface.create_entity{name = demolisher_name(evolution_factor), position = center_position, quality = choose_quality(evolution_factor),force = "enemy"}
+	return true
 end
 
 -- ----------------------------
