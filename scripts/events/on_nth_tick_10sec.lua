@@ -1,6 +1,7 @@
 -- ----------------------------
 -- 10秒イベント (180回で次の30分イベント)
 -- ----------------------------
+local Spawner = require("scripts.core.Spawner")
 
 script.on_nth_tick(600, function()
 
@@ -16,47 +17,77 @@ script.on_nth_tick(600, function()
 	-- 遺跡イベントの実行
 	execute_ruins_queue(fulgora_surface)
 
-	-- 生成済みチャンクイベントの実行
-	execute_chunk_queue(fulgora_surface)
+	-- 生成済みチャンクイベントの実行(生成済み未開拓)
+	execute_chunk_queue_no_charted(fulgora_surface)
+
+	-- 生成済みチャンクイベントの実行(開拓済み視界外)
+	execute_chunk_queue_no_visible(fulgora_surface)
 
 end)
 
 -- ----------------------------
--- 生成済みチャンクイベントの実行
+-- バイターの巣の増加スピードブースト
 -- ----------------------------
-function execute_chunk_queue(fulgora_surface)
+local function chunk_event_spawn_biter_spawner(surface, queue, total_queue_size)
 
 	-- game_print.debug("execute_chunk_queue")
 	-- キューが存在しなければ終了
-	if storage.fulgora_chunk_queue == nil then
-		-- game_print.debug("queue == nil")
-		return
-	end
-	
-	if #storage.fulgora_chunk_queue == 0 then
-		-- game_print.debug("#storage.fulgora_chunk_queue == 0")
-		return
-	end
+	if queue == nil then return end
+	if #queue == 0 then	return end
+
+	-- スポナーの数が5000を超える場合は、終了(負荷対策)
+	if Spawner.get_cached_spawner_count() > 5000 then return end
 
 	-- 進化度の取得
-	local evolution_factor = game.forces["enemy"].get_evolution_factor(fulgora_surface)
-	
-	-- 今回の実行数
-	local target_count = math.floor((storage.fulgora_chunk_queue_size or 0) / 180) + 1
+	local evolution_factor = game.forces["enemy"].get_evolution_factor(surface)
 
-	local fulgora_chunk_queue_size = #storage.fulgora_chunk_queue
+	local size = math.floor(total_queue_size / 180) + 1
 
-	-- game_print.debug("(fulgora_chunk_queue_size, fulgora_chunk_queue_size - target_count) = " .. fulgora_chunk_queue_size .. ", " .. fulgora_chunk_queue_size - target_count)
+	-- 全チャンク走査、確率10％、通常規模no charted 1000、進化度1.0で期待値100
+	for i = #queue, -1, #queue - size do 
+		-- 定義外まで進んだら終了
+		if i <= 0 then return end
+		local target_chunk = queue[i]
+		-- 対象チャンクにバイターの巣があれば、増殖トライ
+		local spawners = surface.find_entities_filtered{
+			force = "enemy", 
+			name = {"biter-spawner", "spitter-spawner"}, 
+			area = {
+				{x = target_chunk.x * 32, y = target_chunk.y * 32},
+				{x = (target_chunk.x + 1) * 32, y = (target_chunk.y + 1) * 32}
+			}
+		}
+
+		if #spawners > 0 then
+			-- 10％で生成する大きな遺跡処理の呼び出し
+			try_fulgoran_ruin_huge(surface, evolution_factor, spawners[math.random(1, #spawners)], storage.fulgora_demolisher_count)
+		end
+		table.remove(queue, i)
+	end
+end
+
+-- ----------------------------
+-- 自然増殖バイターの巣周辺のデモリッシャー追加イベント
+-- ----------------------------
+local function chunk_event_spawn_demolisher(surface, queue)
+
+	-- game_print.debug("execute_chunk_queue")
+	-- キューが存在しなければ終了
+	if queue == nil then return end
+	if #queue == 0 then return end
+
+	-- 進化度の取得
+	local evolution_factor = game.forces["enemy"].get_evolution_factor(surface)
 
 	-- 生成頻度を、全チャンク走査から、10秒ごとにランダム１チャンクに変更、確率50％→10％、1分0.6個=1時間36個
 	-- ただし、バイターの巣が見つからない場合は、最大3回、ランダムチェック
-	local target_chunk = storage.fulgora_chunk_queue[math.random(1, #storage.fulgora_chunk_queue)]
+	local target_chunk = queue[math.random(1, #queue)]
 	local result = false
 	for i = 0, 3, 1 do
 		-- 進化度を考慮
 		if math.random() < evolution_factor / 10 then
 			-- 対象チャンクにバイターの巣があれば、デモリッシャートライ
-			local spawners = fulgora_surface.find_entities_filtered{
+			local spawners = surface.find_entities_filtered{
 				force = "enemy", 
 				name = {"biter-spawner", "spitter-spawner"}, 
 				area = {
@@ -67,17 +98,31 @@ function execute_chunk_queue(fulgora_surface)
 			if #spawners ~= 0 then
 				local position = spawners[math.random(1, #spawners)].position
 				-- デモリッシャー配置トライ
-				result = try_place_demolisher(fulgora_surface, evolution_factor, position, storage.fulgora_demolisher_count)
+				result = try_place_demolisher(surface, evolution_factor, position, storage.fulgora_demolisher_count)
 				-- １回デモリッシャーの生成をトライすれば、その時点で終了
-				break
+				if result == true then
+					break
+				end
 			end
 		end
 	end
-	if result == nil or result == false then
-		-- game_print.debug("[debug] execute_chunk_queue: no demolisher added")
-	else
-		-- game_print.debug("[debug] execute_chunk_queue: demolisher added")
-	end
+end
+
+-- ----------------------------
+-- 生成済みチャンクイベントの実行(生成済み未開拓)
+-- ----------------------------
+function execute_chunk_queue_no_charted(fulgora_surface)
+	-- 自然増殖バイターの巣周辺のデモリッシャー追加イベント
+	chunk_event_spawn_demolisher(fulgora_surface, storage.fulgora_no_charted_chunk_queue, storage.fulgora_no_charted_chunk_queue_size)
+	-- バイターの巣の増加スピードブースト
+	chunk_event_spawn_biter_spawner(fulgora_surface, storage.fulgora_no_charted_chunk_queue, storage.fulgora_no_charted_chunk_queue_size)
+end
+
+-- ----------------------------
+-- 生成済みチャンクイベントの実行(開拓済み視界外)
+-- ----------------------------
+function execute_chunk_queue_no_visible(fulgora_surface)
+	chunk_event_spawn_demolisher(fulgora_surface, storage.fulgora_no_visible_chunk_queue, storage.fulgora_no_visible_chunk_queue_size)
 end
 
 -- ----------------------------
@@ -210,15 +255,9 @@ end
 -- ----------------------------
 function try_place_demolisher(fulgora_surface, evolution_factor, center_position, demolisher_count)
 	-- デモリッシャーがマップに多すぎで終了
-
-	-- 検索処理の重さより、生成後処理の重さを重視した
-	local d_count = #(fulgora_surface.find_entities_filtered{force = "enemy", name = {"small-demolisher","medium-demolisher","big-demolisher"}})
-	if d_count > 200 then
-		return false
-	end
-	--[[if demolisher_count > 200 then
+	if demolisher_count > 200 then
 		return
-	end]]
+	end
 
 	-- デモリッシャーが近くに3匹以上居たら終了
 	local nearby_demolishers = fulgora_surface.find_entities_filtered{

@@ -68,6 +68,22 @@ function init()
 
 	storage.fulgora_chunk_queue = storage.fulgora_chunk_queue or {}
 	storage.fulgora_chunk_queue_size = storage.fulgora_chunk_queue_size or 0
+	
+	storage.fulgora_no_charted_chunk_queue = storage.fulgora_no_charted_chunk_queue or {}
+	storage.fulgora_no_charted_chunk_queue_size = storage.fulgora_no_charted_chunk_queue_size or 0
+
+	storage.fulgora_no_visible_chunk_queue = storage.fulgora_no_visible_chunk_queue or {}
+	storage.fulgora_no_visible_chunk_queue_size = storage.fulgora_no_visible_chunk_queue_size or 0
 
     storage.latest_fulgora_rocket_histories = storage.latest_fulgora_rocket_histories or {}
+
+	-- 強制チャート
+	storage.fulgora_forced_charted_area = storage.fulgora_forced_charted_area or 0
+
+	-- ver.0.1.3以前対応
+	for key, value in pairs(storage.fulgora_chunk_queue) do
+		table.insert(storage.fulgora_no_charted_chunk_queue, value)
+	end
+	storage.fulgora_chunk_queue = {}
+	storage.fulgora_chunk_queue_size = 0
 end

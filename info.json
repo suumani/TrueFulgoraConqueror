@@ -1,10 +1,10 @@
 {
     "name": "TrueFulgoraConqueror",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "factorio_version": "2.0",
     "title": "TrueFulgoraConqueror",
     "author": "suumani",
-    "description": "Players will be environmentally friendly ;)",
+    "description": "There are still creatures living underground...! What will encounters with them bring forth? You will find out why Fulgora fell.",
     "thumbnail": "thumbnail.png",
     "dependencies": [
       "base >= 2.0.0",

@@ -1,3 +1,5 @@
+local Chunk = require("scripts.core.Chunk")
+
 -- ----------------------------
 -- 30分イベント
 -- ----------------------------
@@ -16,6 +18,22 @@ script.on_nth_tick(108000, function()
 	-- 進化度の取得
 	local evolution_factor = game.forces["enemy"].get_evolution_factor(fulgora_surface)
 
+	-- 意図的な小規模開拓への対応
+	local force_charted_span = math.floor(evolution_factor * 25)+5
+	game_print.debug("force_charted_span = " .. force_charted_span)
+	game_print.debug("storage.fulgora_forced_charted_area = " .. storage.fulgora_forced_charted_area)
+	if storage.fulgora_forced_charted_area < force_charted_span then
+		for x = -1 * force_charted_span, force_charted_span, 1 do
+			for y = -1 * force_charted_span, force_charted_span, 1 do
+				if not game.forces["player"].is_chunk_charted(fulgora_surface, {x, y}) then
+					Chunk.ensure_chunk_charted(fulgora_surface, x, y)
+				end
+			end
+		end
+		storage.fulgora_forced_charted_area = force_charted_span
+		game_print.message("The satellite vision data has been processed. The explored area in Fulgora has expanded. (" .. force_charted_span*32 .. "m radius)")
+	end
+
 	-- 遠すぎるチャンクが生成されている場合に削除
 	delete_genarated_chunks_too_far(fulgora_surface)
 
@@ -29,13 +47,24 @@ script.on_nth_tick(108000, function()
 
 	-- 最新のチャンク情報
 	local chunks = fulgora_surface.get_chunks()
-	local chunk_count = 0
-	storage.fulgora_chunk_queue = {}
+	local all_chunk_count = 0
+	local no_charted_chunk_count = 0
+
+	-- queueのリセット
+	storage.fulgora_no_visible_chunk_queue = {}
+	storage.fulgora_no_charted_chunk_queue ={}
 	for chunk in chunks do
-		if not game.forces["player"].is_chunk_charted(fulgora_surface, {chunk.x, chunk.y}) then table.insert(storage.fulgora_chunk_queue, chunk) end
-		chunk_count = chunk_count + 1
+
+		if not game.forces["player"].is_chunk_visible(fulgora_surface, {chunk.x, chunk.y}) then
+			table.insert(storage.fulgora_no_visible_chunk_queue, chunk)
+		end
+		if not game.forces["player"].is_chunk_charted(fulgora_surface, {chunk.x, chunk.y}) then
+			table.insert(storage.fulgora_no_charted_chunk_queue, chunk)
+		end
+		all_chunk_count = all_chunk_count + 1
 	end
-	storage.fulgora_chunk_queue_size = #storage.fulgora_chunk_queue
+	storage.fulgora_no_visible_chunk_queue_size = #storage.fulgora_no_visible_chunk_queue
+	storage.fulgora_no_charted_chunk_queue_size = #storage.fulgora_no_charted_chunk_queue
 	
 	local spawners = fulgora_surface.find_entities_filtered{
 		force = "enemy", 
@@ -43,13 +72,14 @@ script.on_nth_tick(108000, function()
 	}
 
 	game_print.debug(
-		"(evolution_factor, ruins, spawners, demolishers, no charted chunk, all chunk) = ("
+		"(evolution_factor, ruins, spawners, demolishers, no visible chunk, no charted chunk, all chunk) = ("
 		.. math.floor(100*evolution_factor) / 100 .. ", " 
 		.. storage.ruins_queue_size .. ", " 
 		.. #spawners .. ", " 
 		.. storage.fulgora_demolisher_count .. ", " 
-		.. storage.fulgora_chunk_queue_size .. ", " 
-		.. chunk_count ..")")
+		.. storage.fulgora_no_visible_chunk_queue_size .. ", "
+		.. storage.fulgora_no_charted_chunk_queue_size .. ", " 
+		.. all_chunk_count ..")")
 
 	-- 移動対象なしか、ロケット打ち上げなし
 	if storage.latest_fulgora_rocket_histories == nil then storage.latest_fulgora_rocket_histories = {} end
@@ -63,9 +93,9 @@ script.on_nth_tick(108000, function()
 		-- デモリッシャー移動イベント
 		local count = Demolishers_Move_to_Silo(demolishers, evolution_factor, move_rate)
 		if count == 1 then
-			game_print.message("1 Demolisher begins to move ... The vibrations from the rocket silo are...")
+			game_print.message("A Demolisher begins to move ... The vibrations from the rocket silo are...")
 		elseif count > 1 then
-			game_print.message(count .. "Demolisher begin to move ... The vibrations from the rocket silo are...")
+			game_print.message(count .. " Demolisher begin to move ... The vibrations from the rocket silo are...")
 		end
 	
 	end
@@ -240,5 +270,5 @@ function delete_genarated_chunks_too_far(fulgora_surface)
     -- game.print("chunk_count = " .. chunk_count)
     -- game.print("Generated Top-left, Bottom-right  chunk: (" .. min_x_generated .. ", " .. min_y_generated .. "), (" .. max_x_generated .. ", " .. max_y_generated .. ")")
     -- game.print("Charted Top-left, Bottom-right  chunk: (" .. min_x_charted .. ", " .. min_y_charted .. "), (" .. max_x_charted .. ", " .. max_y_charted .. ")")
-    -- game.print("deleted chunk = " .. delete_count)
+    game_print.debug("deleted chunk = " .. delete_count)
 end
