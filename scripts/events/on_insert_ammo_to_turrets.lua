@@ -1,3 +1,6 @@
+-- ----------------------------
+-- 弾丸装填カスタムイベント
+-- ----------------------------
 script.on_event("on_insert_ammo_to_turrets", function(event)
     local player = game.get_player(event.player_index)
     if not player or not player.character then return end
