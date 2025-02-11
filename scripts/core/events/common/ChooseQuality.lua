@@ -1,7 +1,14 @@
 -- ----------------------------
 -- 品質の決定
+-- file path: scripts/core/events/common/ChooseQuality.lua
 -- ----------------------------
-function choose_quality(evolution_factor)
+
+local ChooseQuality = {}
+
+-- ----------------------------
+-- 品質の決定
+-- ----------------------------
+function ChooseQuality.choose_quality(evolution_factor)
 	-- 変更なければnormal
 	local quality = "normal"
 	local r = math.random()
@@ -162,3 +169,5 @@ function choose_quality(evolution_factor)
 	end
 	return "normal"
 end
+
+return ChooseQuality
