@@ -23,7 +23,6 @@
 -- ----------------------------
 
 require("defines.constant_entity_name")
-require("scripts.common.choose_quality")
 require("scripts.common.game_print")
 require("scripts.common.util")
 
@@ -36,54 +35,4 @@ require("scripts.events.on_insert_ammo_to_turrets")
 
 game_debug = true
 
--- ----------------------------
--- 開始
--- ----------------------------
-script.on_init(function()
-	init()
-end)
-
--- ----------------------------
--- ロード
--- ----------------------------
-script.on_load(function()
-end)
-
--- ----------------------------
--- 構成変更
--- ----------------------------
-script.on_configuration_changed(function(event)
-	init()
-end)
-
--- ----------------------------
--- 初期化
--- ----------------------------
-function init()
-	storage = storage or {}
-
-    storage.ruins_queue = storage.ruins_queue or {}
-    storage.ruins_queue_size = storage.ruins_queue_size or 0
-    storage.fulgora_demolisher_count = storage.fulgora_demolisher_count or 0
-
-	storage.fulgora_chunk_queue = storage.fulgora_chunk_queue or {}
-	storage.fulgora_chunk_queue_size = storage.fulgora_chunk_queue_size or 0
-	
-	storage.fulgora_no_charted_chunk_queue = storage.fulgora_no_charted_chunk_queue or {}
-	storage.fulgora_no_charted_chunk_queue_size = storage.fulgora_no_charted_chunk_queue_size or 0
-
-	storage.fulgora_no_visible_chunk_queue = storage.fulgora_no_visible_chunk_queue or {}
-	storage.fulgora_no_visible_chunk_queue_size = storage.fulgora_no_visible_chunk_queue_size or 0
-
-    storage.latest_fulgora_rocket_histories = storage.latest_fulgora_rocket_histories or {}
-
-	-- 強制チャート
-	storage.fulgora_forced_charted_area = storage.fulgora_forced_charted_area or 0
-
-	-- ver.0.1.3以前対応
-	for key, value in pairs(storage.fulgora_chunk_queue) do
-		table.insert(storage.fulgora_no_charted_chunk_queue, value)
-	end
-	storage.fulgora_chunk_queue = {}
-	storage.fulgora_chunk_queue_size = 0
-end
+local SaveData = require("scripts.core.SaveData")

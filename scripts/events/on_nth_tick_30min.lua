@@ -1,4 +1,6 @@
 local Chunk = require("scripts.core.Chunk")
+local Spawner = require("scripts.core.Spawner")
+local Demolisher = require("scripts.core.Demolisher")
 
 -- ----------------------------
 -- 30分イベント
@@ -19,9 +21,9 @@ script.on_nth_tick(108000, function()
 	local evolution_factor = game.forces["enemy"].get_evolution_factor(fulgora_surface)
 
 	-- 意図的な小規模開拓への対応
-	local force_charted_span = math.floor(evolution_factor * 25)+5
-	game_print.debug("force_charted_span = " .. force_charted_span)
-	game_print.debug("storage.fulgora_forced_charted_area = " .. storage.fulgora_forced_charted_area)
+	local force_charted_span = math.floor(evolution_factor * 20)+5
+	-- game_print.debug("force_charted_span = " .. force_charted_span)
+	-- game_print.debug("storage.fulgora_forced_charted_area = " .. storage.fulgora_forced_charted_area)
 	if storage.fulgora_forced_charted_area < force_charted_span then
 		for x = -1 * force_charted_span, force_charted_span, 1 do
 			for y = -1 * force_charted_span, force_charted_span, 1 do
@@ -38,12 +40,11 @@ script.on_nth_tick(108000, function()
 	delete_genarated_chunks_too_far(fulgora_surface)
 
 	-- 現在の遺跡情報の上書き(デモリッシャーに壊される運命)
-	storage.ruins_queue = fulgora_surface.find_entities_filtered{name = {"fulgoran-ruin-vault","fulgoran-ruin-colossal","fulgoran-ruin-huge"}}
-	storage.ruins_queue_size = #storage.ruins_queue
+	storage.suumani_tfc["ruins_queue"] = fulgora_surface.find_entities_filtered{name = {"fulgoran-ruin-vault","fulgoran-ruin-colossal","fulgoran-ruin-huge"}}
+	storage.suumani_tfc["ruins_queue_size"] = #storage.suumani_tfc["ruins_queue"]
 
-	-- 現在のデモリッシャーの数の上書き
-	local demolishers = fulgora_surface.find_entities_filtered{force = "enemy", name = {"small-demolisher","medium-demolisher","big-demolisher"}}
-	storage.fulgora_demolisher_count = #demolishers
+	
+
 
 	-- 最新のチャンク情報
 	local chunks = fulgora_surface.get_chunks()
@@ -51,41 +52,45 @@ script.on_nth_tick(108000, function()
 	local no_charted_chunk_count = 0
 
 	-- queueのリセット
-	storage.fulgora_no_visible_chunk_queue = {}
-	storage.fulgora_no_charted_chunk_queue ={}
+	storage.suumani_tfc["fulgora_no_visible_chunk_queue"] = {}
+	storage.suumani_tfc["fulgora_no_visible_chunks"] = {}
+	storage.suumani_tfc["fulgora_no_charted_chunk_queue"] ={}
+	storage.suumani_tfc["fulgora_no_charted_chunks"] ={}
 	for chunk in chunks do
 
 		if not game.forces["player"].is_chunk_visible(fulgora_surface, {chunk.x, chunk.y}) then
-			table.insert(storage.fulgora_no_visible_chunk_queue, chunk)
+			table.insert(storage.suumani_tfc["fulgora_no_visible_chunk_queue"], chunk)
+			table.insert(storage.suumani_tfc["fulgora_no_visible_chunks"], chunk)
 		end
 		if not game.forces["player"].is_chunk_charted(fulgora_surface, {chunk.x, chunk.y}) then
-			table.insert(storage.fulgora_no_charted_chunk_queue, chunk)
+			table.insert(storage.suumani_tfc["fulgora_no_charted_chunk_queue"], chunk)
+			table.insert(storage.suumani_tfc["fulgora_no_charted_chunks"], chunk)
 		end
 		all_chunk_count = all_chunk_count + 1
 	end
-	storage.fulgora_no_visible_chunk_queue_size = #storage.fulgora_no_visible_chunk_queue
-	storage.fulgora_no_charted_chunk_queue_size = #storage.fulgora_no_charted_chunk_queue
+	storage.suumani_tfc["fulgora_no_visible_chunk_queue_size"] = #storage.suumani_tfc["fulgora_no_visible_chunk_queue"]
+	storage.suumani_tfc["fulgora_no_charted_chunk_queue_size"] = #storage.suumani_tfc["fulgora_no_charted_chunk_queue"]
 	
-	local spawners = fulgora_surface.find_entities_filtered{
-		force = "enemy", 
-		name = {"biter-spawner", "spitter-spawner"}, 
-	}
+	-- 現在のデモリッシャーの取得
+	local demolishers = Demolisher.get_demolishers_now(fulgora_surface)
+	-- 現在のスポナー数の上書き
+	local spawners_count = Spawner.count_spawners_now(fulgora_surface)
 
 	game_print.debug(
 		"(evolution_factor, ruins, spawners, demolishers, no visible chunk, no charted chunk, all chunk) = ("
 		.. math.floor(100*evolution_factor) / 100 .. ", " 
-		.. storage.ruins_queue_size .. ", " 
-		.. #spawners .. ", " 
-		.. storage.fulgora_demolisher_count .. ", " 
-		.. storage.fulgora_no_visible_chunk_queue_size .. ", "
-		.. storage.fulgora_no_charted_chunk_queue_size .. ", " 
+		.. storage.suumani_tfc["ruins_queue_size"] .. ", " 
+		.. spawners_count .. ", " 
+		.. Demolisher.count_demolishers_now(fulgora_surface) .. ", " 
+		.. storage.suumani_tfc["fulgora_no_visible_chunk_queue_size"] .. ", "
+		.. storage.suumani_tfc["fulgora_no_charted_chunk_queue_size"] .. ", " 
 		.. all_chunk_count ..")")
 
 	-- 移動対象なしか、ロケット打ち上げなし
-	if storage.latest_fulgora_rocket_histories == nil then storage.latest_fulgora_rocket_histories = {} end
-	if #demolishers ~= 0 and #storage.latest_fulgora_rocket_histories ~= 0 then
+	if storage.suumani_tfc["latest_fulgora_rocket_histories"] == nil then storage.suumani_tfc["latest_fulgora_rocket_histories"] = {} end
+	if demolishers_count ~= 0 and #storage.suumani_tfc["latest_fulgora_rocket_histories"] ~= 0 then
 
-		local move_rate = #storage.latest_fulgora_rocket_histories
+		local move_rate = #storage.suumani_tfc["latest_fulgora_rocket_histories"]
 		if move_rate > 3 then
 			move_rate = 3
 		end
@@ -97,12 +102,10 @@ script.on_nth_tick(108000, function()
 		elseif count > 1 then
 			game_print.message(count .. " Demolisher begin to move ... The vibrations from the rocket silo are...")
 		end
-	
 	end
 
-
 	-- ロケット発射座標履歴の初期化
-	storage.latest_fulgora_rocket_histories = {}
+	storage.suumani_tfc["latest_fulgora_rocket_histories"] = {}
 
 end)
 
@@ -112,7 +115,7 @@ end)
 function Demolishers_Move_to_Silo(demolishers, evolution_factor, move_rate)
 	
 	-- 移動対象なしか、ロケット打ち上げなし
-	if #demolishers == 0 or #storage.latest_fulgora_rocket_histories == 0 then
+	if #demolishers == 0 or #storage.suumani_tfc["latest_fulgora_rocket_histories"] == 0 then
 		return 0
 	end
 
@@ -133,7 +136,7 @@ function Demolishers_Move_to_Silo(demolishers, evolution_factor, move_rate)
 					max_distance = math.floor(20 * evolution_factor * move_rate) + 1
 				end
 				max_distance = math.random(0, max_distance)
-				Demolisher_Move_to_Silo(demolisher, storage.latest_fulgora_rocket_histories, max_distance)
+				Demolisher_Move_to_Silo(demolisher, storage.suumani_tfc["latest_fulgora_rocket_histories"], max_distance)
 				count = count + 1
 			end
 		end
@@ -270,5 +273,5 @@ function delete_genarated_chunks_too_far(fulgora_surface)
     -- game.print("chunk_count = " .. chunk_count)
     -- game.print("Generated Top-left, Bottom-right  chunk: (" .. min_x_generated .. ", " .. min_y_generated .. "), (" .. max_x_generated .. ", " .. max_y_generated .. ")")
     -- game.print("Charted Top-left, Bottom-right  chunk: (" .. min_x_charted .. ", " .. min_y_charted .. "), (" .. max_x_charted .. ", " .. max_y_charted .. ")")
-    game_print.debug("deleted chunk = " .. delete_count)
+    -- game_print.debug("deleted chunk = " .. delete_count)
 end

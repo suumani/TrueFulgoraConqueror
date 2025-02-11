@@ -16,7 +16,7 @@ script.on_event(defines.events.on_rocket_launched, function(event)
 		return
 	end
 
-	if storage.latest_fulgora_rocket_histories == nil then storage.latest_fulgora_rocket_histories = {} end
-	table.insert(storage.latest_fulgora_rocket_histories, silo.position)
+	if storage.suumani_tfc["latest_fulgora_rocket_histories"] == nil then storage.suumani_tfc["latest_fulgora_rocket_histories"] = {} end
+	table.insert(storage.suumani_tfc["latest_fulgora_rocket_histories"], silo.position)
 
 end)
