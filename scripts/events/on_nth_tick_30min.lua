@@ -43,12 +43,8 @@ script.on_nth_tick(108000, function()
 	storage.suumani_tfc["ruins_queue"] = fulgora_surface.find_entities_filtered{name = {"fulgoran-ruin-vault","fulgoran-ruin-colossal","fulgoran-ruin-huge"}}
 	storage.suumani_tfc["ruins_queue_size"] = #storage.suumani_tfc["ruins_queue"]
 
-	
-
-
 	-- 最新のチャンク情報
-	local chunks = fulgora_surface.get_chunks()
-	local all_chunk_count = 0
+	local chunk_list = Chunk.get_chunk_list_now(fulgora_surface)
 	local no_charted_chunk_count = 0
 
 	-- queueのリセット
@@ -56,7 +52,7 @@ script.on_nth_tick(108000, function()
 	storage.suumani_tfc["fulgora_no_visible_chunks"] = {}
 	storage.suumani_tfc["fulgora_no_charted_chunk_queue"] ={}
 	storage.suumani_tfc["fulgora_no_charted_chunks"] ={}
-	for chunk in chunks do
+	for key, chunk in ipairs(chunk_list) do
 
 		if not game.forces["player"].is_chunk_visible(fulgora_surface, {chunk.x, chunk.y}) then
 			table.insert(storage.suumani_tfc["fulgora_no_visible_chunk_queue"], chunk)
@@ -66,7 +62,6 @@ script.on_nth_tick(108000, function()
 			table.insert(storage.suumani_tfc["fulgora_no_charted_chunk_queue"], chunk)
 			table.insert(storage.suumani_tfc["fulgora_no_charted_chunks"], chunk)
 		end
-		all_chunk_count = all_chunk_count + 1
 	end
 	storage.suumani_tfc["fulgora_no_visible_chunk_queue_size"] = #storage.suumani_tfc["fulgora_no_visible_chunk_queue"]
 	storage.suumani_tfc["fulgora_no_charted_chunk_queue_size"] = #storage.suumani_tfc["fulgora_no_charted_chunk_queue"]
@@ -84,7 +79,7 @@ script.on_nth_tick(108000, function()
 		.. Demolisher.count_demolishers_now(fulgora_surface) .. ", " 
 		.. storage.suumani_tfc["fulgora_no_visible_chunk_queue_size"] .. ", "
 		.. storage.suumani_tfc["fulgora_no_charted_chunk_queue_size"] .. ", " 
-		.. all_chunk_count ..")")
+		.. #chunk_list ..")")
 
 	-- 移動対象なしか、ロケット打ち上げなし
 	if storage.suumani_tfc["latest_fulgora_rocket_histories"] == nil then storage.suumani_tfc["latest_fulgora_rocket_histories"] = {} end
