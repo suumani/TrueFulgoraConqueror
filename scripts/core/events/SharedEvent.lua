@@ -81,15 +81,15 @@ function SharedEvent.chunk_event_spawn_biter_spawner(
 	-- チャンクあたり平均0.15個を切るなら150% - 50%
 	if cached_spawner_count < cached_unvisible_chunk_count * 0.15 then
 		rate = 1.5 - evolution_factor
-		game_print.debug("spawner, chunk = ".. cached_spawner_count ..", ".. cached_unvisible_chunk_count .. ", nest lower than 0.15, rate = " .. rate)
+		-- game_print.debug("spawner, chunk = ".. cached_spawner_count ..", ".. cached_unvisible_chunk_count .. ", nest lower than 0.15, rate = " .. rate)
 	-- チャンクあたり平均0.5個を切るなら110% - 10%
 	elseif cached_spawner_count < cached_unvisible_chunk_count * 0.5 then
 		rate = 1.1 - evolution_factor
-		game_print.debug("spawner, chunk = ".. cached_spawner_count ..", ".. cached_unvisible_chunk_count .. ", nest lower than 0.5, rate = " .. rate)
+		-- game_print.debug("spawner, chunk = ".. cached_spawner_count ..", ".. cached_unvisible_chunk_count .. ", nest lower than 0.5, rate = " .. rate)
 	-- チャンクあたり平均0.75個を切るなら101% - 1%
 	elseif cached_spawner_count < cached_unvisible_chunk_count * 0.75 then
 		rate = 1.01 - evolution_factor
-		game_print.debug("spawner, chunk = ".. cached_spawner_count ..", ".. cached_unvisible_chunk_count .. ", nest lower than 0.75, rate = " .. rate)
+		-- game_print.debug("spawner, chunk = ".. cached_spawner_count ..", ".. cached_unvisible_chunk_count .. ", nest lower than 0.75, rate = " .. rate)
 	else
 		--game_print.debug("spawner, chunk = ".. cached_spawner_count ..", ".. cached_unvisible_chunk_count .. ", nest more than 0.75, rate = " .. rate)
 		rate = 0
