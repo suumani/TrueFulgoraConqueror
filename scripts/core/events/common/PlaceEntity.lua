@@ -4,6 +4,7 @@
 -- ----------------------------
 local PlaceEntity = {}
 local DRand = require("scripts.util.DeterministicRandom")
+local QualityRoller = require("__Manis_lib__/scripts/rollers/QualityRoller")
 -- region
 -- デモリッシャーサイズの選定関数
 local ChooseDemolisherSize = require("scripts.core.events.common.ChooseDemolisherSize")
@@ -19,7 +20,7 @@ local choose_worm_size = ChooseWormSize.choose_worm_size
 -- 周辺座標にワームを配置する
 -- ----------------------------
 function place_worm(fulgora_surface, evolution_factor, name, spawn_position)
-	local quality = QualityRoller.choose_quality(queued.evolution_factor, Drand.random())
+	local quality = QualityRoller.choose_quality(evolution_factor, DRand.random())
 	fulgora_surface.create_entity{name = name, position = spawn_position, quality = quality, force = "enemy"}
 end
 
@@ -27,7 +28,7 @@ end
 -- 指定座標にバイターかスピッターの巣を配置する
 -- ----------------------------
 function place_spawner(fulgora_surface, evolution_factor, spawn_position)
-	local quality = QualityRoller.choose_quality(queued.evolution_factor, Drand.random())
+	local quality = QualityRoller.choose_quality(evolution_factor, DRand.random())
 	local r = DRand.random()
 	if(r < 0.5) then
 		fulgora_surface.create_entity{name = "biter-spawner", position = spawn_position, quality = quality, force = "enemy"}
@@ -73,7 +74,7 @@ function PlaceEntity.try_place_demolisher(fulgora_surface, evolution_factor, cen
 	game.print({"item-description.demolisher-spawn"})
 	game_print.debug("at (x, y) = (" .. center_position.x .. ", " .. center_position.y .. ")")
 
-	fulgora_surface.create_entity{name = choose_demolisher_size(evolution_factor), position = center_position, quality = choose_quality(evolution_factor),force = "enemy"}
+	fulgora_surface.create_entity{name = choose_demolisher_size(evolution_factor), position = center_position, quality = QualityRoller.choose_quality(evolution_factor, DRand.random()),force = "enemy"}
 	return true
 end
 
