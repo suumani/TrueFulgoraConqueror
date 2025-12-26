@@ -13,16 +13,13 @@ local choose_demolisher_size = ChooseDemolisherSize.choose_demolisher_size
 local ChooseWormSize = require("scripts.core.events.common.ChooseWormSize")
 local choose_worm_size = ChooseWormSize.choose_worm_size
 
--- 品質の選定関数
-local ChooseQuality = require("scripts.core.events.common.ChooseQuality")
-local choose_quality = ChooseQuality.choose_quality
 -- endregion
 
 -- ----------------------------
 -- 周辺座標にワームを配置する
 -- ----------------------------
 function place_worm(fulgora_surface, evolution_factor, name, spawn_position)
-	local quality = choose_quality(evolution_factor)
+	local quality = QualityRoller.choose_quality(queued.evolution_factor, Drand.random())
 	fulgora_surface.create_entity{name = name, position = spawn_position, quality = quality, force = "enemy"}
 end
 
@@ -30,7 +27,7 @@ end
 -- 指定座標にバイターかスピッターの巣を配置する
 -- ----------------------------
 function place_spawner(fulgora_surface, evolution_factor, spawn_position)
-	local quality = choose_quality(evolution_factor)
+	local quality = QualityRoller.choose_quality(queued.evolution_factor, Drand.random())
 	local r = DRand.random()
 	if(r < 0.5) then
 		fulgora_surface.create_entity{name = "biter-spawner", position = spawn_position, quality = quality, force = "enemy"}
