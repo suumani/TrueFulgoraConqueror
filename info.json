@@ -1,6 +1,6 @@
 {
     "name": "TrueFulgoraConqueror",
-    "version": "0.1.9",
+    "version": "0.2.0",
     "factorio_version": "2.0",
     "title": "TrueFulgoraConqueror",
     "author": "suumani",
@@ -10,6 +10,7 @@
       "base >= 2.0.0",
       "elevated-rails >= 2.0.0",
       "quality >= 2.0.0",
-      "space-age >= 2.0.0"
+      "space-age >= 2.0.0",
+      "Manis_lib >= 0.0.4"
     ]
 }
