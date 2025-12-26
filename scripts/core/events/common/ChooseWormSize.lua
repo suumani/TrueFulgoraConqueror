@@ -4,12 +4,12 @@
 -- ----------------------------
 
 local ChooseWormSize = {}
-
+local DRand = require("scripts.util.DeterministicRandom")
 -- ----------------------------
 -- ワームサイズの決定
 -- ----------------------------
 function ChooseWormSize.choose_worm_size(evolution_factor)
-	local r = math.random()
+	local r = DRand.random()
 	if evolution_factor < 0.2 then -- small worm 100%
 		return CONST_ENTITY_NAME.SMALL_WORM
 	elseif evolution_factor < 0.5 then -- small 70% medium 30%

@@ -1,4 +1,4 @@
-
+local DRand = require("scripts.util.DeterministicRandom")
 
 local itemTbl = {
 	["biter_locator_easy"] = {{"small-biter","medium-biter","big-biter","behemoth-biter"}, 75, false}, 
@@ -128,7 +128,7 @@ script.on_event(defines.events.on_player_used_capsule, function(event)
 		return
 	end
 
-	local entity = result_entities[math.random(1,#result_entities)]
+	local entity = result_entities[DRand.random(1,#result_entities)]
 	game.print("found at (x,y) = " ..math.floor(entity.position.x).. ","..math.floor(entity.position.y)..")")
 
 end)
@@ -149,7 +149,7 @@ function throw_locator(param, surface, position, distance_rate)
 	end
 
 	rate = 1
-	if math.random() < rate then
+	if DRand.random() < rate then
 		return entities
 	else
 		return {}

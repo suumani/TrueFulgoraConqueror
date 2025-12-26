@@ -7,7 +7,7 @@ local SharedEvent = {}
 local Chunk = require("scripts.core.Chunk")
 local Spawner = require("scripts.core.Spawner")
 local PlaceEntity = require("scripts.core.events.common.PlaceEntity")
-
+local DRand = require("scripts.util.DeterministicRandom")
 -- ----------------------------
 -- 自然増殖バイターの巣周辺のデモリッシャー追加イベント
 -- ----------------------------
@@ -23,11 +23,11 @@ function SharedEvent.chunk_event_spawn_demolisher(surface, queue, fulgora_demoli
 
 	-- 生成頻度を、全チャンク走査から、10秒ごとにランダム１チャンクに変更、確率50％→10％、1分0.6個=1時間36個
 	-- ただし、バイターの巣が見つからない場合は、最大3回、ランダムチェック
-	local target_chunk = queue[math.random(1, #queue)]
+	local target_chunk = queue[DRand.random(1, #queue)]
 	local result = false
 	for i = 0, 3, 1 do
 		-- 進化度を考慮
-		if math.random() < evolution_factor / 10 then
+		if DRand.random() < evolution_factor / 10 then
 			-- 対象チャンクにバイターの巣があれば、デモリッシャートライ
 			local spawners = surface.find_entities_filtered{
 				force = "enemy", 
@@ -38,7 +38,7 @@ function SharedEvent.chunk_event_spawn_demolisher(surface, queue, fulgora_demoli
 				}
 			}
 			if #spawners ~= 0 then
-				local position = spawners[math.random(1, #spawners)].position
+				local position = spawners[DRand.random(1, #spawners)].position
 				-- デモリッシャー配置トライ
 				result = PlaceEntity.try_place_demolisher(surface, evolution_factor, position, fulgora_demolisher_count)
 				-- １回デモリッシャーの生成をトライすれば、その時点で終了
@@ -97,7 +97,7 @@ function SharedEvent.chunk_event_spawn_biter_spawner(
 	for i = #queue, #queue - size, -1 do
 		-- 定義外まで進んだら終了
 		if i <= 0 then return end
-		if rate > math.random() then
+		if rate > DRand.random() then
 			local target_chunk = queue[i]
 			-- 対象チャンクにバイターの巣があれば、増殖トライ
 			local spawners = surface.find_entities_filtered{
@@ -114,7 +114,7 @@ function SharedEvent.chunk_event_spawn_biter_spawner(
 				PlaceEntity.try_fulgoran_ruin_colossal(
 					surface, 
 					evolution_factor, 
-					spawners[math.random(1, #spawners)].position, 
+					spawners[DRand.random(1, #spawners)].position, 
 					fulgora_demolisher_count)
 			end
 		end

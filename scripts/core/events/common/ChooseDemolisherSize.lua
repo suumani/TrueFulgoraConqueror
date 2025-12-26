@@ -4,12 +4,12 @@
 -- ----------------------------
 
 local ChooseDemolisherSize = {}
-
+local DRand = require("scripts.util.DeterministicRandom")
 -- ----------------------------
 -- デモリッシャーサイズの選定関数
 -- ----------------------------
 function ChooseDemolisherSize.choose_demolisher_size(evolution_factor)
-	local r = math.random()
+	local r = DRand.random()
 	-- 進化0.3未満
 	if evolution_factor < 0.3 then
 		return "small-demolisher"
