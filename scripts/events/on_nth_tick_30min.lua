@@ -1,7 +1,7 @@
 local Chunk = require("scripts.core.Chunk")
 local Spawner = require("scripts.core.Spawner")
 local Demolisher = require("scripts.core.Demolisher")
-
+local DRand = require("scripts.util.DeterministicRandom")
 -- ----------------------------
 -- 30分イベント
 -- ----------------------------
@@ -123,14 +123,14 @@ function Demolishers_Move_to_Silo(demolishers, evolution_factor, move_rate)
 			(demolisher.name == "big-demolisher" and evolution_factor > 0.9) then
 
 			-- 進化度の50％の確率で移動
-			if math.random() < (evolution_factor / 2) then
+			if DRand.random() < (evolution_factor / 2) then
 				local max_distance = math.floor(20 * evolution_factor * move_rate) + 1
 				if demolisher.name == "medium-demolisher" then
 					max_distance = math.floor(20 * evolution_factor * move_rate) + 1
 				elseif demolisher.name == "big-demolisher" then
 					max_distance = math.floor(20 * evolution_factor * move_rate) + 1
 				end
-				max_distance = math.random(0, max_distance)
+				max_distance = DRand.random(0, max_distance)
 				Demolisher_Move_to_Silo(demolisher, storage.suumani_tfc["latest_fulgora_rocket_histories"], max_distance)
 				count = count + 1
 			end

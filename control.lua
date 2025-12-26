@@ -36,3 +36,12 @@ require("scripts.events.on_insert_ammo_to_turrets")
 game_debug = false
 
 local SaveData = require("scripts.core.SaveData")
+local DRand = require("scripts.util.DeterministicRandom")
+
+script.on_init(function()
+  DRand.init(1234567) -- Mod固有seed推奨
+end)
+
+script.on_configuration_changed(function()
+  DRand.init(1234567)
+end)

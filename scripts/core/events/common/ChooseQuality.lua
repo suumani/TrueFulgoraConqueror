@@ -4,14 +4,14 @@
 -- ----------------------------
 
 local ChooseQuality = {}
-
+local DRand = require("scripts.util.DeterministicRandom")
 -- ----------------------------
 -- 品質の決定
 -- ----------------------------
 function ChooseQuality.choose_quality(evolution_factor)
 	-- 変更なければnormal
 	local quality = "normal"
-	local r = math.random()
+	local r = DRand.random()
 	
 	if evolution_factor < 0.1 then
 		if r < 0.01 then

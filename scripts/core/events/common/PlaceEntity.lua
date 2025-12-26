@@ -3,7 +3,7 @@
 -- file path: scripts/core/events/common/PlaceEntity.lua
 -- ----------------------------
 local PlaceEntity = {}
-
+local DRand = require("scripts.util.DeterministicRandom")
 -- region
 -- デモリッシャーサイズの選定関数
 local ChooseDemolisherSize = require("scripts.core.events.common.ChooseDemolisherSize")
@@ -31,7 +31,7 @@ end
 -- ----------------------------
 function place_spawner(fulgora_surface, evolution_factor, spawn_position)
 	local quality = choose_quality(evolution_factor)
-	local r = math.random()
+	local r = DRand.random()
 	if(r < 0.5) then
 		fulgora_surface.create_entity{name = "biter-spawner", position = spawn_position, quality = quality, force = "enemy"}
 	else
@@ -86,7 +86,7 @@ end
 -- 周辺座標にバイターかスピッターの巣を配置する
 -- ----------------------------
 local function place_spawner_around(fulgora_surface, evolution_factor, center_position)
-	local spawn_position = {x = center_position.x + math.random(-20, 20), y = center_position.y + math.random(-20, 20)}
+	local spawn_position = {x = center_position.x + DRand.random(-20, 20), y = center_position.y + DRand.random(-20, 20)}
 
 	-- チャンク未生成は終了
 	if fulgora_surface.is_chunk_generated({x = math.floor(spawn_position.x / 32), y = math.floor(spawn_position.y / 32)}) == false then
@@ -105,7 +105,7 @@ end
 -- 周辺座標にワームを配置する
 -- ----------------------------
 local function place_worm_around(fulgora_surface, evolution_factor, center_position)
-	local spawn_position = {x = center_position.x + math.random(-20, 20), y = center_position.y + math.random(-20, 20)}
+	local spawn_position = {x = center_position.x + DRand.random(-20, 20), y = center_position.y + DRand.random(-20, 20)}
 
 	-- チャンク未生成は終了
 	if fulgora_surface.is_chunk_generated({x = math.floor(spawn_position.x / 32), y = math.floor(spawn_position.y / 32)}) == false then
@@ -128,12 +128,12 @@ function PlaceEntity.try_fulgoran_ruin_huge(fulgora_surface, evolution_factor, p
 	-- game_print.debug("[debug] try_fulgoran_ruin_huge")
 
 	-- 90%の確率で終了
-	if math.random() < 0.9 then
+	if DRand.random() < 0.9 then
 		return
 	end
 
 	local result = "success"
-	if math.random() < 0.5 then
+	if DRand.random() < 0.5 then
 		result = place_spawner_around(fulgora_surface, evolution_factor, position)
 	else
 		result = place_worm_around(fulgora_surface, evolution_factor, position)
@@ -154,7 +154,7 @@ function PlaceEntity.try_fulgoran_ruin_vault(fulgora_surface, evolution_factor, 
 	local result = "success"
 
 	for i = 0, 3, 1 do
-		if math.random() < 0.5 then
+		if DRand.random() < 0.5 then
 			local result2 = place_spawner_around(fulgora_surface, evolution_factor, position)
 			-- 設置が一度でも失敗したら、最終失敗判定
 			if result2 == "failed" then
@@ -185,7 +185,7 @@ end
 function PlaceEntity.try_fulgoran_ruin_colossal(fulgora_surface, evolution_factor, position, demolisher_count)
 	-- game_print.debug("[debug] try_fulgoran_ruin_colossal")
 	local result = "success"
-	if math.random() < 0.5 then
+	if DRand.random() < 0.5 then
 		result = place_spawner_around(fulgora_surface, evolution_factor, position)
 	else
 		result = place_worm_around(fulgora_surface, evolution_factor, position)
