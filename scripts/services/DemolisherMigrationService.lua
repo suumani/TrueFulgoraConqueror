@@ -6,7 +6,9 @@
 
 local DRand = require("scripts.util.DeterministicRandom")
 local Geometry = require("scripts.util.Geometry")
+
 local BUILDING_CHECK_RADIUS = 10
+local PLAYER_FORCE_NAME = "player"
 
 local DemolisherMigrationService = {}
 
@@ -25,18 +27,22 @@ end
 
 local function calc_max_distance(evo, move_rate)
   local maxd = math.floor(20 * evo * move_rate) + 1
-  return DRand.random(0, maxd)
+  -- 0 を返さない
+  return DRand.random(1, maxd)
 end
 
 local function find_nearest_target(pos, targets)
   local best, best_d2 = nil, nil
-  for _, t in pairs(targets) do
+
+  -- 同期安全側: 配列前提なら ipairs
+  for _, t in ipairs(targets) do
     local d2 = Geometry.squared_distance(pos, t)
     if best_d2 == nil or d2 < best_d2 then
       best_d2 = d2
       best = t
     end
   end
+
   return best
 end
 
@@ -72,9 +78,9 @@ end
 local function warp_entity_toward(entity, target_pos, max_distance)
   local move_pos = Geometry.calculate_next_position(entity.position, target_pos, max_distance)
 
-  -- 同一地点なら移動中止
-  if entity.position.x == target_pos.x and entity.position.y == target_pos.y then
-    return false 
+  -- 実移動が発生しないなら中止
+  if move_pos.x == entity.position.x and move_pos.y == entity.position.y then
+    return false
   end
 
   -- player建物が近いなら移動中止
@@ -83,9 +89,6 @@ local function warp_entity_toward(entity, target_pos, max_distance)
   end
 
   local dir = choose_cardinal_direction(entity.position, move_pos)
-  if move_pos.x == entity.position.x and move_pos.y == entity.position.y then
-    dir = entity.direction
-  end
 
   local new_entity = entity.surface.create_entity{
     name = entity.name,
@@ -94,6 +97,7 @@ local function warp_entity_toward(entity, target_pos, max_distance)
     quality = entity.quality,
     direction = dir
   }
+
   entity.destroy()
   return new_entity
 end
@@ -113,8 +117,10 @@ function DemolisherMigrationService.move_to_silo_if_needed(surface, demolishers,
         local target = find_nearest_target(d.position, rocket_histories)
         if target ~= nil then
           local max_distance = calc_max_distance(evolution_factor, move_rate)
-          warp_entity_toward(d, target, max_distance)
-          moved = moved + 1
+          local result = warp_entity_toward(d, target, max_distance)
+          if result then
+            moved = moved + 1
+          end
         end
       end
     end
