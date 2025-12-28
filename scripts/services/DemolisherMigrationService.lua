@@ -78,7 +78,7 @@ local function warp_entity_toward(entity, target_pos, max_distance)
   end
 
   -- player建物が近いなら移動中止
-  if has_player_building_near(entity.surface, move_position, BUILDING_CHECK_RADIUS) then
+  if has_player_building_near(entity.surface, move_pos, BUILDING_CHECK_RADIUS) then
     return false
   end
 
