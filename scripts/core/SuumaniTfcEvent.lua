@@ -5,10 +5,8 @@
 
 local SuumaniTfcEvent = {}
 
--- region 依存モジュールのロード
 SuumaniTfcEvent.RuinsEvent = require("scripts.core.events.RuinsEvent")
 SuumaniTfcEvent.NoChartedChunkEvent = require("scripts.core.events.NoChartedChunkEvent")
 SuumaniTfcEvent.NoVisibleChunkEvent = require("scripts.core.events.NoVisibleChunkEvent")
--- endregion
 
 return SuumaniTfcEvent

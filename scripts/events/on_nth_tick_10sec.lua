@@ -7,9 +7,6 @@ local SuumaniTfcEvent = require("scripts.core.SuumaniTfcEvent")
 
 script.on_nth_tick(600, function()
 
-	-- フルゴララッシュの蓄積キュー実行	
-	-- game_print.debug("[debug] on_nth_tick 600")
-	
 	-- フルゴラが存在しなければ終了
 	local fulgora_surface = game.surfaces["fulgora"]
 	if fulgora_surface == nil then
@@ -18,7 +15,6 @@ script.on_nth_tick(600, function()
 
 	-- キャッシュされたデモリッシャー数の取得
 	local fulgora_demolisher_count = Demolisher.count_demolishers_now(fulgora_surface)
-	-- game_print.debug("fulgora_demolisher_count = " .. fulgora_demolisher_count)
 
 	-- 遺跡イベントの実行
 	SuumaniTfcEvent.RuinsEvent.execute(fulgora_surface, fulgora_demolisher_count)
