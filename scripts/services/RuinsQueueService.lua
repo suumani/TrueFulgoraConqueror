@@ -1,3 +1,4 @@
+-- __TrueFulgoraConqueror__/scripts/services/RuinsQueueService.lua
 --[[
 責務:
 - Fulgora上の遺跡エンティティを再収集し、storage.suumani_tfc の ruins_queue / ruins_queue_size を更新する。

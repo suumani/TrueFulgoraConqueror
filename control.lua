@@ -27,6 +27,7 @@ require("scripts.common.game_print")
 require("scripts.common.util")
 
 require("scripts.events.on_nth_tick_10sec")
+require("scripts.events.on_nth_tick_1min")
 require("scripts.events.on_nth_tick_30min")
 require("scripts.events.on_player_used_capsule")
 require("scripts.events.on_rocket_launched")
@@ -39,9 +40,11 @@ local SaveData = require("scripts.core.SaveData")
 local DRand = require("scripts.util.DeterministicRandom")
 
 script.on_init(function()
-  DRand.init(1234567) -- Mod固有seed推奨
+  storage.suumani_tfc = storage.suumani_tfc or {}
+  DRand.init(1234567) -- Mod固有seed
 end)
 
 script.on_configuration_changed(function()
+  storage.suumani_tfc = storage.suumani_tfc or {}
   DRand.init(1234567)
 end)

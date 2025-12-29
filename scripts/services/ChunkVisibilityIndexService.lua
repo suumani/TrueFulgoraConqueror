@@ -1,3 +1,4 @@
+-- __TrueFulgoraConqueror__/scripts/services/ChunkVisibilityIndexService.lua
 --[[
 責務:
 - 現在のchunk_listを走査し、プレイヤー視点で

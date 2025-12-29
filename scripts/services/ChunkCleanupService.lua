@@ -1,3 +1,4 @@
+-- __TrueFulgoraConqueror__/scripts/services/ChunkCleanupService.lua
 --[[
 責務:
 - 生成済みチャンクのうち、プレイヤーがチャートしている範囲から遠すぎるものを削除する。

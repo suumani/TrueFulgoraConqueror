@@ -1,3 +1,4 @@
+-- __TrueFulgoraConqueror__/scripts/services/FulgoraExplorationService.lua
 --[[
 責務:
 - Fulgoraにおける「意図的な小規模開拓」対策として、進化度に応じた強制チャート範囲を拡張する。
