@@ -1,115 +1,124 @@
 # True Fulgora Conqueror
 
-## 概要
+[日本語版はこちら / Japanese version](README.ja.md)
 
-**True Fulgora Conqueror** は、  
-フルゴラに新たな敵勢力と防衛体験を追加する Mod です。
+## Overview
 
-この Mod では、  
-フルゴラに点在する遺跡から敵が出現するようになります。  
-探索して終わりだった遺跡は、  
-**防衛すべき危険地帯**へと変化します。
+**True Fulgora Conqueror** is a mod that adds a new enemy threat
+and a focused defense experience to Fulgora.
 
----
-
-## コンセプト
-
-フルゴラは土地が狭く、資源も配置も制約の多い惑星です。  
-この Mod は、その制約を **不利ではなく、楽しさの源泉** として扱います。
-
-- 広い防衛線は引けない  
-- 無制限な拡張もできない  
-- だからこそ、武器選択と配置が重要になる  
-
-**最適な武器は何か。  
-最適なレイアウトはどれか。**
-
-その問いを突き詰める楽しさを、  
-フルゴラという惑星に持ち込むことが、この Mod の目的です。
+In this mod, enemies emerge from ruins scattered across the planet.
+Ruins that were once explored and left behind
+become **dangerous locations that must be defended**.
 
 ---
 
-## この Mod が追加する体験
+## Concept
 
-- 遺跡が「探索対象」から「防衛対象」へ変わる  
-- 限られたスペースでの高密度な防衛戦  
-- 武器選択と配置による明確な成否の差  
-- 試行錯誤を通じて最適解を探す楽しさ  
+Fulgora is a planet defined by tight space and heavy constraints
+on terrain, resources, and layout.
 
-この Mod は、  
-単に敵を増やすものではありません。
+This mod treats those constraints
+**not as disadvantages, but as the source of its fun**.
 
-ナウビスで不完全燃焼になったあなたに向けた、  
-**防衛設計をさらに遊ぶ Mod** です。
+- You cannot rely on wide defensive lines  
+- Unlimited expansion is not an option  
+- Weapon choice and layout design become critical  
 
----
+**Which weapon is optimal?  
+Which layout is truly effective?**
 
-## 主な機能
-
-### 遺跡からの敵出現
-- フルゴラに存在する遺跡から、敵が出現します
-- 遺跡周辺は安全地帯ではなくなります
-
-### フルゴラ特化の防衛体験
-- 狭い地形を前提とした戦闘設計
-- 大規模な壁の設置や資材の輸送に頼れないため、随所に工夫を求められます
-
-### 最適化を促すゲーム性
-- 武器の選択によって防衛効率が大きく変化します
-- 防衛線を維持するための補給設計も問われます
+The goal of this mod is to bring the joy of answering those questions
+into the unique environment of Fulgora.
 
 ---
 
-## 想定されるプレイの流れ（例）
+## What This Mod Adds to the Game
 
-1. フルゴラを探索し、遺跡を発見する  
-2. 遺跡から敵が出現し、防衛が必要になる  
-3. 限られた土地で防衛線を構築する  
-4. 失敗と改善を繰り返し、より良い配置を見つける  
+- Ruins shift from exploration targets to defense objectives  
+- High-density defensive combat in extremely limited space  
+- Clear differences in outcome based on weapon choice and layout  
+- The satisfaction of finding optimal solutions through iteration  
 
-フルゴラ攻略は、  
-**操作負荷のならない、防衛設計の確立が重要になります。**
+This mod does not simply add more enemies.
+
+It is a mod for players who want to **design defenses**, not just survive.
+
+For those who felt something was missing
+after defending Nauvis,
+this mod offers a deeper and more focused experience.
 
 ---
 
-## 対応環境
+## Main Features
+
+### Enemies Emerging from Ruins
+- Enemies spawn from ruins located on Fulgora
+- Areas around ruins are no longer safe zones
+
+### Defense Gameplay Designed for Fulgora
+- Combat design based on narrow and constrained terrain
+- Large walls and heavy logistics cannot be relied upon,
+  forcing creative and thoughtful solutions
+
+### Optimization-Focused Gameplay
+- Defensive efficiency changes dramatically with weapon choice
+- Supply planning and maintenance become part of the defense design
+
+---
+
+## Example Gameplay Flow
+
+1. Explore Fulgora and discover ruins  
+2. Enemies begin emerging, requiring defensive action  
+3. Build defensive lines within extremely limited space  
+4. Refine layouts through failure and improvement  
+
+Conquering Fulgora is no longer about expansion.
+
+**Establishing low-maintenance, well-designed defenses
+is the key to success.**
+
+---
+
+## Supported Environment
 
 - Factorio 2.0+
-- Space Age 環境を前提としています
-- 依存 Mod については `info.json` を参照してください
+- Designed for the Space Age environment
+- See `info.json` for mod dependencies
 
 ---
 
-## 現在の開発状況
+## Development Status
 
-- 遺跡からの敵出現ロジックは実装済み
-- フルゴラでの基本的な防衛プレイは安定動作段階
-- バランス調整および敵挙動の調整は継続中
-
----
-
-## ロードマップ（予定）
-
-- 敵の種類や出現パターンの拡張
-- 防衛に影響する要素の追加
-- 他 Mod との併用を前提とした調整
-
-※ 具体仕様は予告なく変更される可能性があります。
+- Enemy spawning from ruins is implemented
+- Core defensive gameplay on Fulgora is stable
+- Balance and enemy behavior are under continuous adjustment
 
 ---
 
-## この Mod について
+## Roadmap (Planned)
 
-この Mod は、  
-**「強い敵に耐える」ことよりも、  
-「限られた条件で最適解を探す」こと**を重視しています。
+- Additional enemy types and spawn patterns
+- New mechanics that affect defensive gameplay
+- Adjustments with mod interoperability in mind
 
-フルゴラの制約を楽しめるかどうかが、  
-この Mod を楽しめるかどうかの分かれ目です。
+*Details may change without notice.*
 
 ---
 
-## ライセンス
+## About This Mod
+
+This mod prioritizes
+**finding optimal solutions under strict constraints**
+over simply enduring stronger enemies.
+
+Whether you enjoy this mod
+depends on how much you enjoy turning limitations into strategy.
+
+---
+
+## License
 
 MIT License  
 © suumani
