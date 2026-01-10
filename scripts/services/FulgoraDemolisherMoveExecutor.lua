@@ -7,7 +7,7 @@ local MovePolicy = require("scripts.policies.fulgora_demolisher_move_policy")
 local ModRandomProvider = require("scripts.services.ModRandomProvider")
 
 local function build_move_targets(surface, area, ctx)
-  return DemolisherQuery.find_neighbor_demolishers(surface, area) or {}
+  return DemolisherQuery.find_demolishers_range(surface, area) or {}
 end
 
 local function get_rocket_positions(plan)

@@ -1,4 +1,4 @@
--- scripts/util/DeterministicRandom.lua
+-- __TrueFulgoraConqueror__/scripts/util/DeterministicRandom.lua
 -- 責務: Factorio公式の同期乱数(LuaRandomGenerator)を使い、math.random互換APIを提供する。
 --       math.random() / math.random(min,max) の置換を最小コストで実現し、マルチ同期を壊さない。
 local DeterministicRandom = {}

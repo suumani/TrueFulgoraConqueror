@@ -18,7 +18,7 @@ function Orchestrator.run_once()
   local rocket_positions = RocketLaunchHistoryStore.get_positions(SURFACE_NAME, game.tick)
   if not rocket_positions or #rocket_positions == 0 then return 0 end
 
-  local demolishers = DemolisherQuery.find_all_demolishers(surface)
+  local demolishers = DemolisherQuery.find_demolishers(surface)
   local evo = game.forces.enemy.get_evolution_factor(surface)
 
   local planned_total = math.floor(#demolishers * evo * 0.5)

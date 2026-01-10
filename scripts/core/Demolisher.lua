@@ -1,7 +1,13 @@
+-- scripts/core/Demolisher.lua
 -- ----------------------------
 -- デモリッシャーに関する処理
 -- ----------------------------
+
+
 local Demolisher = {}
+local DemolisherNames = require("__Manis_definitions__/scripts/definition/DemolisherNames")
+local DemolisherQuery = require("__Manis_lib__/scripts/queries/DemolisherQuery")
+
 
 -- デモリッシャー数のキャッシュ(30分更新)
 local cached_demolisher_count = 0  -- 初期値を 0 に設定
@@ -15,7 +21,7 @@ function Demolisher.get_demolishers_now(surface)
         return {}
     end
 
-    local demolishers = surface.find_entities_filtered{force = "enemy", name = {"small-demolisher","medium-demolisher","big-demolisher"}}
+    local demolishers = DemolisherQuery.find_fulgora_demolishers(surface)
     cached_demolisher_count = #demolishers
     return demolishers
 end
@@ -30,7 +36,7 @@ function Demolisher.count_demolishers_now(surface)
         return cached_demolisher_count
     end
 
-    local demolisher_count = #surface.find_entities_filtered{force = "enemy", name = {"small-demolisher","medium-demolisher","big-demolisher"}}
+    local demolisher_count = #(DemolisherQuery.find_fulgora_demolishers(surface))
     cached_demolisher_count = demolisher_count
     -- game_print.debug("demolisher_count = "..demolisher_count)
     return demolisher_count
