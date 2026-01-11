@@ -109,6 +109,10 @@
 
 ---
 
+For detailed mechanics, see spec.ja.md
+
+---
+
 ## ライセンス
 
 MIT License  

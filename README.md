@@ -118,6 +118,10 @@ depends on how much you enjoy turning limitations into strategy.
 
 ---
 
+For detailed mechanics, see spec.md
+
+---
+
 ## License
 
 MIT License  
