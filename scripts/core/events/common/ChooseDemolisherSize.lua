@@ -39,7 +39,7 @@ function ChooseDemolisherSize.choose_demolisher_size(evolution_factor)
 		elseif r < 0.98 then
 			return DemolisherNames.MANIS_MEDIUM_ALT
 		else
-			return D.MANIS_BIG_ALT
+			return DemolisherNames.MANIS_BIG_ALT
 		end
 	elseif evolution_factor < 0.8 then
 		if r < 0.75 then
@@ -47,7 +47,7 @@ function ChooseDemolisherSize.choose_demolisher_size(evolution_factor)
 		elseif r < 0.96 then
 			return DemolisherNames.MANIS_MEDIUM_ALT
 		else
-			return D.MANIS_BIG_ALT
+			return DemolisherNames.MANIS_BIG_ALT
 		end
 	elseif evolution_factor < 0.9 then
 		if r < 0.7 then
@@ -55,7 +55,7 @@ function ChooseDemolisherSize.choose_demolisher_size(evolution_factor)
 		elseif r < 0.94 then
 			return DemolisherNames.MANIS_MEDIUM_ALT
 		else
-			return D.MANIS_BIG_ALT
+			return DemolisherNames.MANIS_BIG_ALT
 		end
 	elseif evolution_factor < 0.95 then
 		if r < 0.65 then
@@ -63,7 +63,7 @@ function ChooseDemolisherSize.choose_demolisher_size(evolution_factor)
 		elseif r < 0.92 then
 			return DemolisherNames.MANIS_MEDIUM_ALT
 		else
-			return D.MANIS_BIG_ALT
+			return DemolisherNames.MANIS_BIG_ALT
 		end
 	elseif evolution_factor < 0.98 then
 		if r < 0.6 then
@@ -71,7 +71,7 @@ function ChooseDemolisherSize.choose_demolisher_size(evolution_factor)
 		elseif r < 0.9 then
 			return DemolisherNames.MANIS_MEDIUM_ALT
 		else
-			return D.MANIS_BIG_ALT
+			return DemolisherNames.MANIS_BIG_ALT
 		end
 	else
 		if r < 0.55 then
@@ -79,7 +79,7 @@ function ChooseDemolisherSize.choose_demolisher_size(evolution_factor)
 		elseif r < 0.8 then
 			return DemolisherNames.MANIS_MEDIUM_ALT
 		else
-			return D.MANIS_BIG_ALT
+			return DemolisherNames.MANIS_BIG_ALT
 		end
 	end
 end
